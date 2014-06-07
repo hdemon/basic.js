@@ -1,5 +1,4 @@
-# the below is almost quote from http://qiita.com/mizchi/items/b22080a52bb3bcd7215a directly.
-MeCab = new require('./mecab.js')
+# the below is almost quoted from http://qiita.com/mizchi/items/b22080a52bb3bcd7215a directly.
 escodegen = require 'escodegen'
 esprima = require 'esprima'
 pj = require 'prettyjson'
@@ -30,11 +29,15 @@ parse_with_gen_and_escodegen_exec = (parser_code, code) ->
 peg_parser = fs.readFileSync('ecma55.pegjs').toString()
 
 code = """
-10 PRINT "A"
+10 PRINT "ABC"
+20 PRINT "DEF"
 999 END
 """
 
 p '-----------' + new Date
 data = parse_with_gen peg_parser, code
+
 p code
 p pj.render data
+
+p escodegen.generate data

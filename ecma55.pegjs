@@ -1,4 +1,36 @@
+{
+  @programNode = (body) ->
+    type: 'Program'
+    body: body
+
+  @expressionStatement = (expressionObject) ->
+    type: 'ExpressionStatement'
+    expression: expressionObject
+
+  @callExpression = (objectName, propertyName, argumentsObject) ->
+    type: 'CallExpression'
+    callee:
+      type: 'MemberExpression'
+      computed: false
+      object:
+        type: 'Identifier'
+        name: objectName
+      property:
+        type: 'Identifier'
+        name: propertyName
+    arguments: [
+      argumentsObject
+    ]
+
+  @literal = (value) ->
+    type: 'Literal'
+    value: value
+}
+
+//start = body:program { @programNode body }
 start = program
+//program = blocks:block* end_line:end_line { blocks.push end_line }
+program = blocks:block* end_line { @programNode blocks }
 
 white_space
   = "\t"
@@ -28,15 +60,15 @@ quoted_string_character
 unquoted_string_character = " " / plain_string_character
 plain_string_character    = "+" / "-" / "." / digit / letter
 remark_string             = string_character*
-quoted_string             = '"' quoted_string_character* '"'
+quoted_string             = '"' value:$(quoted_string_character*) '"' { @literal(value) }
 unquoted_string           = plain_string_character /
                             plain_string_character
                             unquoted_string_character*
                             plain_string_character
 
-// block            = (line / for_block)*
-block            = line
-line             = line_number:line_number _ statement:statement __ { console.log line_number}
+block            = line:line / for_block { console.log line }
+//block            = line
+line             = line_number:line_number _ statement:statement __ { @expressionStatement(statement) }
 //line             = line_number:line_number
 line_number      = $(digit+)
 end_line         = line_number _ end_statement __
@@ -88,8 +120,8 @@ string_expression  = string_variable / string_constant
 // for statement
 for_block                = for_line for_body
 for_body                 = block next_line
-for_line                 = line_number for_statement end_of_line
-next_line                = line_number next_statement end_of_line
+for_line                 = line_number _ for_statement __
+next_line                = line_number _ next_statement __
 for_statement            = "FOR" control_variable "=" initial_value "TO" limit ("STEP" increment)?
 control_variable         = simple_numeric_variable
 initial_value            = numeric_expression
@@ -98,11 +130,11 @@ increment                = numeric_expression
 next_statement           = "NEXT" control_variable
 
 // print statement
-print_statement       = "PRINT" _ print_list?
-print_list            = (print_item? print_separator)* print_item?
-print_item            = expression / tab_call
-tab_call              = "TAB" "(" numeric_expression ")"
+print_statement       = "PRINT" _ item:print_item {
+  @callExpression("console", "log", item)
+}
+//print_statement       = "PRINT" _ list:print_list?
+print_list            = (print_item? print_separator _)* print_item?
+print_item            = expression // / tab_call
+// tab_call              = "TAB" "(" numeric_expression ")"
 print_separator       = "." / ";"
-
-//program          = block* end_line
-program          = block* end_line

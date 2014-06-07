@@ -5,9 +5,9 @@
     type: 'Program'
     body: body
 
-  @blockStatement = (bodyArray) ->
+  @blockStatement = (args) ->
     type: 'BlockStatement'
-    body: bodyArray
+    body: args.bodyArray
 
   @expressionStatement = (expressionObject) ->
     type: 'ExpressionStatement'
@@ -80,7 +80,7 @@
           computed: false
           object:
             type: 'Identifier'
-            name: 'program'
+            name: 'controller'
           property:
             type: 'Identifier'
             name: '__next'
@@ -112,13 +112,21 @@ program = blocks:block* end_line {
     @property
       keyName: "\"" + String(block.lineNumber) + "\""
       valueObject:
-        @functionExpression
-          name: null
-          blockStatement: @blockStatement [
-            block.expressionStatement
-            @__next
-          ]
-
+        @objectExpression [
+          @property
+            keyName: 'func'
+            valueObject:
+              @functionExpression
+                name: null
+                blockStatement: @blockStatement
+                  bodyArray: [
+                    block.expressionStatement
+                    @__next
+                  ]
+          @property
+            keyName: 'lineNumber'
+            valueObject: @literal block.lineNumber
+        ]
   @program body
 }
 

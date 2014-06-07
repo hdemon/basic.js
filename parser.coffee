@@ -28,50 +28,34 @@ parse_with_gen_and_escodegen_exec = (parser_code, code) ->
 
 peg_parser = fs.readFileSync('ecma55.pegjs').toString()
 
-code = """
+controllerCode = """
+controller = {};
+
+controller.__next = function() {
+  var lineIndexes = Object.keys(program);
+  var currentLineIndex = lineIndexes.indexOf(String(this.lineNumber));
+  var nextLineNumber = lineIndexes[currentLineIndex + 1];
+  console.log(nextLineNumber)
+  program[String(nextLineNumber)].func();
+};
+
+controller.__start = function() {
+  var lineIndexes = Object.keys(program);
+  program[String(lineIndexes[0])].func();
+};
+
+controller.__start();
+"""
+
+sourceCode = """
 10 PRINT "ABC"
 20 PRINT "DEF"
-
 999 END
 """
 
-# program = {
-#   "10": {
-#     func: function() {
-#       console.log("ABC");
-#       program.__next.call(this);
-#     },
-#     lineNumber: 10,
-#   },
+data = parse_with_gen peg_parser, sourceCode
+# p pj.render data
 
-#   "20": {
-#     func: function() {
-#       console.log("DEF");
-#       program.__next.call(this);
-#     },
-#     lineNumber: 20,
-#   },
+generatedCode = escodegen.generate data
+console.log generatedCode + controllerCode
 
-#   "30": {
-#     func: function() {
-#       program.__goto(10).call(this);
-#       program.__next.call(this);
-#     },
-#     lineNumber: 30,
-#   },
-# }
-
-# program.__next = function() {
-#   var lineIndexes = Object.keys(program);
-#   var currentLineIndex = lineIndexes.indexOf(String(this.lineNumber));
-#   var nextLineNumber = lineIndexes[currentLineIndex + 1];
-#   program[String(nextLineNumber)].func();
-# }
-
-
-p '-----------' + new Date
-data = parse_with_gen peg_parser, code
-p code
-p pj.render data
-
-p escodegen.generate data

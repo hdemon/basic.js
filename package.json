@@ -1,5 +1,5 @@
 {
-  "name": "alanpoe",
+  "name": "basic.js",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
@@ -8,23 +8,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/hdemon/alanpoe.git"
+    "url": "git://github.com/hdemon/basic.js.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/hdemon/alanpoe/issues"
   },
-  "homepage": "https://github.com/hdemon/alanpoe",
+  "homepage": "https://github.com/hdemon/basic.js",
   "dependencies": {
     "escodegen": "^1.3.2",
     "esprima": "^1.2.2",
-    "mecab-async": "0.0.8",
+    "lodash": "^2.4.1",
     "pegjs": "^0.8.0",
     "pegjs-coffee-plugin": "^0.2.1",
     "prettyjson": "^1.0.0"
-  },
-  "devDependencies": {
-    "execsync": "0.0.5"
   }
 }

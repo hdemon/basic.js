@@ -1,3 +1,5 @@
+#!/usr/bin/env coffee
+
 # the below is almost quoted from http://qiita.com/mizchi/items/b22080a52bb3bcd7215a directly.
 escodegen = require 'escodegen'
 esprima = require 'esprima'
@@ -5,10 +7,13 @@ pj = require 'prettyjson'
 PEG = require 'pegjs'
 coffee = require 'pegjs-coffee-plugin'
 fs = require 'fs'
+argv = require('optimist').argv
+
 
 p = console.log.bind console
 
-# show ast tree
+
+# show ast treej;
 getJsAst = (code) -> pj.render esprima.parse code
 jsonDump = (code)-> p pj.render code
 
@@ -26,7 +31,11 @@ parseWithGenAndEscodegen = (parserCode, code) ->
 parseWithGenAndEscodegenExec = (parserCode, code) ->
   eval parseWithGenAndEscodegen parserCode, code
 
+
+fileName = argv._[0]
 pegParser = fs.readFileSync('ecma55.pegjs').toString()
+sourceCode = fs.readFileSync(fileName).toString()
+
 
 controllerCode = """
 controller = {};
@@ -47,15 +56,5 @@ controller.__start = function() {
 controller.__start();
 """
 
-sourceCode = """
-10 PRINT "ABC"
-20 PRINT "DEF"
-999 END
-"""
-
 data = parseWithGen pegParser, sourceCode
-# p pj.render data
-
-generatedCode = escodegen.generate data
-console.log generatedCode + controllerCode
-
+console.log escodegen.generate(data) + controllerCode

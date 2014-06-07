@@ -1,4 +1,5 @@
 # the below is almost quote from http://qiita.com/mizchi/items/b22080a52bb3bcd7215a directly.
+MeCab = new require('./mecab.js')
 escodegen = require 'escodegen'
 esprima = require 'esprima'
 pj = require 'prettyjson'
@@ -26,19 +27,11 @@ parse_with_gen_and_escodegen = (parser_code, code) ->
 parse_with_gen_and_escodegen_exec = (parser_code, code) ->
   eval parse_with_gen_and_escodegen parser_code, code
 
-peg_parser = fs.readFileSync('alanpoe.pegjs').toString()
+peg_parser = fs.readFileSync('ecma55.pegjs').toString()
 
 code = """
-When I%3 equal zero and I%5 equal zero, shall '"FizzBuzz".
-If I%3 equal zero, '"Buzz".
-Ah 'Fizz, I%5 equal absence.
-In so far as, I minus 100 equal nothingness.
-"""
-
-code = """
-abc I def ghi, aa 'xxx.
-def ghi, 'ggg fff.
-xfg 'adf, gie hhh.
+10 PRINT "A"
+999 END
 """
 
 p '-----------' + new Date

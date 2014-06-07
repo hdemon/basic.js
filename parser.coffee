@@ -44,8 +44,9 @@ controller.__next = function() {
   var lineIndexes = Object.keys(program);
   var currentLineIndex = lineIndexes.indexOf(String(this.lineNumber));
   var nextLineNumber = lineIndexes[currentLineIndex + 1];
-  console.log(nextLineNumber)
-  program[String(nextLineNumber)].func();
+  if (nextLineNumber) {
+    program[String(nextLineNumber)].func();
+  }
 };
 
 controller.__start = function() {

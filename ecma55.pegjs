@@ -1,17 +1,29 @@
 {
-  _ = require 'lodash'
+  @_ = require 'lodash'
 
   @programNode = (body) ->
     type: 'Program'
     body: body
 
-  @blockStatement = (body) ->
+  @blockStatement = (bodyArray) ->
     type: 'BlockStatement'
-    body: [body]
+    body: bodyArray
 
   @expressionStatement = (expressionObject) ->
     type: 'ExpressionStatement'
     expression: expressionObject
+
+  @objectExpression = (propertyArray) ->
+    type: 'ObjectExpression'
+    properties: propertyArray
+
+  @property = (args) ->
+    type: 'Property'
+    key:
+      type: 'Identifier'
+      name: args.keyName
+    value: args.valueObject
+    kind: 'init'
 
   @callExpression = (objectName, propertyName, argumentsObject) ->
     type: 'CallExpression'
@@ -40,20 +52,74 @@
     generator: false
     expression: false
 
+  @functionExpression = (args) ->
+    type: 'FunctionExpression'
+    id: args.name || null
+    params: []
+    defaults: []
+    body: args.blockStatement
+    rest: null
+    generator:  false
+    expression: false
+
   @literal = (value) ->
     type: 'Literal'
     value: value
+
+  # program.__next.call(this);
+  #
+  # todo: DRYed up
+  @__next =
+    @expressionStatement
+      type: 'CallExpression'
+      callee:
+        type: 'MemberExpression'
+        computed: false
+        object:
+          type: 'MemberExpression'
+          computed: false
+          object:
+            type: 'Identifier'
+            name: 'program'
+          property:
+            type: 'Identifier'
+            name: '__next'
+        property:
+          type: 'Identifier'
+          name: 'call'
+      arguments: [
+        type: 'ThisExpression'
+      ]
+
+  @program = (properties) =>
+    type: 'Program'
+    body: [
+      type: 'ExpressionStatement'
+      expression:
+        type: 'AssignmentExpression'
+        operator: '='
+        left:
+          type: 'Identifier'
+          name: 'program'
+        right: @objectExpression properties
+    ]
 }
 
 
 start = program
 program = blocks:block* end_line {
   body = blocks.map (block) =>
-    console.log block
-    @functionDeclaration block.lineNumber, @blockStatement block.expressionStatement
-  body.push @programController
+    @property
+      keyName: "\"" + String(block.lineNumber) + "\""
+      valueObject:
+        @functionExpression
+          name: null
+          blockStatement: @blockStatement [
+            block.expressionStatement
+            @__next
+          ]
 
-  @programNode body
+  @program body
 }
 
 white_space

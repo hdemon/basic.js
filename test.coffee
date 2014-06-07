@@ -4,12 +4,18 @@ pj = require 'prettyjson'
 
 p = -> console.log pj.render arguments...
 p esprima.parse """
-function line10() {
-  console.log("a");
+
+program = {
+  "10": {
+    func: function() {
+    },
+  },
+  "20": {
+    func: function() {
+    },
+  },
 }
-function line10() {
-  return 1;
-}
+
 """
 
 

@@ -31,8 +31,43 @@ peg_parser = fs.readFileSync('ecma55.pegjs').toString()
 code = """
 10 PRINT "ABC"
 20 PRINT "DEF"
+
 999 END
 """
+
+# program = {
+#   "10": {
+#     func: function() {
+#       console.log("ABC");
+#       program.__next.call(this);
+#     },
+#     lineNumber: 10,
+#   },
+
+#   "20": {
+#     func: function() {
+#       console.log("DEF");
+#       program.__next.call(this);
+#     },
+#     lineNumber: 20,
+#   },
+
+#   "30": {
+#     func: function() {
+#       program.__goto(10).call(this);
+#       program.__next.call(this);
+#     },
+#     lineNumber: 30,
+#   },
+# }
+
+# program.__next = function() {
+#   var lineIndexes = Object.keys(program);
+#   var currentLineIndex = lineIndexes.indexOf(String(this.lineNumber));
+#   var nextLineNumber = lineIndexes[currentLineIndex + 1];
+#   program[String(nextLineNumber)].func();
+# }
+
 
 p '-----------' + new Date
 data = parse_with_gen peg_parser, code

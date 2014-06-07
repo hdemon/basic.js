@@ -36,7 +36,6 @@ code = """
 
 p '-----------' + new Date
 data = parse_with_gen peg_parser, code
-
 p code
 p pj.render data
 

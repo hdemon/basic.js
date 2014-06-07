@@ -1,7 +1,13 @@
 {
+  _ = require 'lodash'
+
   @programNode = (body) ->
     type: 'Program'
     body: body
+
+  @blockStatement = (body) ->
+    type: 'BlockStatement'
+    body: [body]
 
   @expressionStatement = (expressionObject) ->
     type: 'ExpressionStatement'
@@ -22,15 +28,33 @@
       argumentsObject
     ]
 
+  @functionDeclaration = (name, blockStatement) ->
+    type: "FunctionDeclaration"
+    id:
+      type: "Identifier"
+      name: name
+    params: []
+    defaults: []
+    body: blockStatement
+    rest: null
+    generator: false
+    expression: false
+
   @literal = (value) ->
     type: 'Literal'
     value: value
 }
 
-//start = body:program { @programNode body }
+
 start = program
-//program = blocks:block* end_line:end_line { blocks.push end_line }
-program = blocks:block* end_line { @programNode blocks }
+program = blocks:block* end_line {
+  body = blocks.map (block) =>
+    console.log block
+    @functionDeclaration block.lineNumber, @blockStatement block.expressionStatement
+  body.push @programController
+
+  @programNode body
+}
 
 white_space
   = "\t"
@@ -66,9 +90,11 @@ unquoted_string           = plain_string_character /
                             unquoted_string_character*
                             plain_string_character
 
-block            = line:line / for_block { console.log line }
-//block            = line
-line             = line_number:line_number _ statement:statement __ { @expressionStatement(statement) }
+block            = line:line / for_block
+line             = line_number:line_number _ statement:statement __ {
+  lineNumber: line_number
+  expressionStatement: @expressionStatement(statement)
+}
 //line             = line_number:line_number
 line_number      = $(digit+)
 end_line         = line_number _ end_statement __

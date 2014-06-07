@@ -9,24 +9,24 @@ fs = require 'fs'
 p = console.log.bind console
 
 # show ast tree
-get_js_ast = (code) -> pj.render esprima.parse code
-json_dump = (code)-> p pj.render code
+getJsAst = (code) -> pj.render esprima.parse code
+jsonDump = (code)-> p pj.render code
 
 # pegjs parser
-gen_parser = (src) -> PEG.buildParser src, {plugins: [coffee]}
-parse_with_gen = (parser_code, code) ->
-  parser = gen_parser parser_code
+genParser = (src) -> PEG.buildParser src, {plugins: [coffee]}
+parseWithGen = (parserCode, code) ->
+  parser = genParser parserCode
   parser.parse code
 
 # pegjs parser and ast
-parse_with_gen_and_escodegen = (parser_code, code) ->
-  parser = gen_parser parser_code
+parseWithGenAndEscodegen = (parserCode, code) ->
+  parser = genParser parserCode
   escodegen.generate parser.parse code
 
-parse_with_gen_and_escodegen_exec = (parser_code, code) ->
-  eval parse_with_gen_and_escodegen parser_code, code
+parseWithGenAndEscodegenExec = (parserCode, code) ->
+  eval parseWithGenAndEscodegen parserCode, code
 
-peg_parser = fs.readFileSync('ecma55.pegjs').toString()
+pegParser = fs.readFileSync('ecma55.pegjs').toString()
 
 controllerCode = """
 controller = {};
@@ -53,7 +53,7 @@ sourceCode = """
 999 END
 """
 
-data = parse_with_gen peg_parser, sourceCode
+data = parseWithGen pegParser, sourceCode
 # p pj.render data
 
 generatedCode = escodegen.generate data

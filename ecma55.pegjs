@@ -70,7 +70,7 @@
   #
   # todo: DRYed up
   @__next =
-    @expressionStatement
+
       type: 'CallExpression'
       callee:
         type: 'MemberExpression'
@@ -91,6 +91,28 @@
         type: 'ThisExpression'
       ]
 
+  @__goto = (lineNumber) =>
+    type: 'CallExpression'
+    callee:
+      type: 'MemberExpression'
+      computed: false
+      object:
+        type: 'MemberExpression'
+        computed: false
+        object:
+          type: 'Identifier'
+          name: 'controller'
+        property:
+          type: 'Identifier'
+          name: '__goto'
+      property:
+        type: 'Identifier'
+        name: 'call'
+    arguments: [
+      type: 'ThisExpression'
+      @literal lineNumber
+    ]
+
   @program = (properties) =>
     type: 'Program'
     body: [
@@ -103,6 +125,20 @@
           name: 'program'
         right: @objectExpression properties
     ]
+
+  @gotoStatement = (lineNumber) =>
+
+  @ifThenStatement = (args) =>
+    type: 'IfStatement'
+    test:
+      type: 'BinaryExpression'
+      operator: args.operator
+      left: args.left
+      right: args.right
+    consequent:
+      type: 'ExpressionStatement'
+      expression: args.callExpression
+    alternate: null
 }
 
 
@@ -121,7 +157,7 @@ program = blocks:block* end_line {
                 blockStatement: @blockStatement
                   bodyArray: [
                     block.expressionStatement
-                    @__next
+                    @expressionStatement @__next
                   ]
           @property
             keyName: 'lineNumber'
@@ -173,10 +209,11 @@ line             = line_number:line_number _ statement:statement __ {
 line_number      = $(digit+)
 end_line         = line_number _ end_statement __
 end_statement    = "END"
-statement        = print_statement
+statement
+  = print_statement
 //  = data_statement / def_statement /
 //    dimension _statement / gosub_statement /
-//    goto_statement / if_then_statement /
+  / goto_statement / if_then_statement
 //    input_statement / let_statement /
 //    on_goto_statement / option_statement /
 //    print_statement / randomize_statement /
@@ -216,6 +253,28 @@ primary            = numeric_variable / numeric_rep / "(" numeric_expression ")"
 argument_list      = "(" argument ")"
 argument           = string_expression
 string_expression  = string_variable / string_constant
+
+
+// controll statement
+goto_statement
+  = "GO" white_space* "TO" _ lineNumber:line_number {
+    @__goto lineNumber
+  }
+if_then_statement
+  = "IF" _ relational_expression _ "THEN" _ line_number
+relational_expression
+  = numeric_expression _ relation _ numeric_expression
+  / string_expression _ equality_relation _ string_expression
+relation                 = equality_relation / "<" / ">" / not_less / not_greater
+equality_relation        = "=" / not_equals
+not_less                 = ">="
+not_greater              = "<="
+not_equals               = "<>"
+gosub_statement          = "GO" white_space* "SUB" line_number
+return_statement         = "RETURN"
+on_goto_statement        = "ON" numeric_expression "GO" white_space*
+                          "TO" line_number ("." line_number)*
+
 
 // for statement
 for_block                = for_line for_body

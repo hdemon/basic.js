@@ -49,6 +49,10 @@ controller.__next = function() {
   }
 };
 
+controller.__goto = function(lineNumber) {
+  program[String(lineNumber)].func();
+};
+
 controller.__start = function() {
   var lineIndexes = Object.keys(program);
   program[String(lineIndexes[0])].func();
@@ -58,4 +62,5 @@ controller.__start();
 """
 
 data = parseWithGen pegParser, sourceCode
+# p pj.render data
 console.log escodegen.generate(data) + controllerCode

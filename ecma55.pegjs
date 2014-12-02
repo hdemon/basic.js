@@ -193,23 +193,33 @@ quoted_string_character
     "'" / "(" / ")" / "*" / "," / "/" /
     ":" / ";" / "<" / "=" / ">" /
     "?" / "^" / "_" / unquoted_string_character
-unquoted_string_character = " " / plain_string_character
-plain_string_character    = "+" / "-" / "." / digit / letter
-remark_string             = string_character*
-quoted_string             = '"' value:$(quoted_string_character*) '"' { @literal(value) }
-unquoted_string           = plain_string_character /
-                            plain_string_character
-                            unquoted_string_character*
-                            plain_string_character
+unquoted_string_character
+  = " " / plain_string_character
+plain_string_character
+  = "+" / "-" / "." / digit / letter
+remark_string
+  = string_character*
+quoted_string
+  = '"' value:$(quoted_string_character*) '"' { @literal(value) }
+unquoted_string
+  = plain_string_character /
+    plain_string_character
+    unquoted_string_character*
+    plain_string_character
 
-block            = line:line / for_block
-line_number      = $(digit+)
-line             = line_number:line_number _ statement:statement __ {
-  lineNumber: line_number
-  expressionStatement: @expressionStatement(statement)
-}
-end_statement    = "END"
-end_line         = line_number _ end_statement __
+block
+  = line:line / for_block
+line_number
+  = $(digit+)
+line
+  = line_number:line_number _ statement:statement __ {
+    lineNumber: line_number
+    expressionStatement: @expressionStatement(statement)
+  }
+end_statement
+  = "END"
+end_line
+  = line_number _ end_statement __
 statement
   = print_statement
 //  = data_statement / def_statement /
@@ -223,37 +233,60 @@ statement
 //    stop_statement
 
 // variables
-variable               = numeric_variable / string_variable
-numeric_variable       = simple_numeric_variable / numeric_array_element
-simple_numeric_variable= letter digit?
-numeric_array_element  = numeric_array_name subscript
-numeric_array_name     = letter
-subscript              = "(" numeric_expression ("." numeric_expression)? ")"
-string_variable        = letter "$"
+variable
+  = numeric_variable / string_variable
+numeric_variable
+  = simple_numeric_variable / numeric_array_element
+simple_numeric_variable
+  = letter digit?
+numeric_array_element
+  = numeric_array_name subscript
+numeric_array_name
+  = letter
+subscript
+  = "(" numeric_expression ("." numeric_expression)? ")"
+string_variable
+  = letter "$"
 
 // constants
-numeric_constant  = sign? numeric_rep
-sign              = "+" / "-"
-numeric_rep       = significand exrad?
-significand       = integer "."? / integer? fraction
-integer           = digit digit*
-fraction          = "." digit digit*
-exrad             = "E" sign? integer
+numeric_constant
+  = sign? numeric_rep
+sign
+  = "+" / "-"
+numeric_rep
+  = significand exrad?
+significand
+  = integer "."? / integer? fraction
+integer
+  = digit digit*
+fraction
+  = "." digit digit*
+exrad
+  = "E" sign? integer
 string_constant   = quoted_string
 
 // expressions
-expression         = numeric_expression / string_expression
-numeric_expression = sign? term (sign term)*
-term               = factor (multiplier factor)*
-factor             = primary ("^" primary)*
-multiplier         = "*" / "/"
-// primary            = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
-primary            = numeric_variable / numeric_rep / "(" numeric_expression ")"
-// numeric_function_ref  = numeric_function_name argument_list?
-// numeric_function_name  = numeric_defined_function / numeric_supplied_function
-argument_list      = "(" argument ")"
-argument           = string_expression
-string_expression  = string_variable / string_constant
+expression
+  = numeric_expression / string_expression
+numeric_expression
+  = sign? term (sign term)*
+term
+  = factor (multiplier factor)*
+factor
+  = primary ("^" primary)*
+multiplier
+  = "*" / "/"
+// primary = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
+primary
+  = numeric_variable / numeric_rep / "(" numeric_expression ")"
+// numeric_function_ref = numeric_function_name argument_list?
+// numeric_function_name = numeric_defined_function / numeric_supplied_function
+argument_list
+  = "(" argument ")"
+argument
+  = string_expression
+string_expression
+  = string_variable / string_constant
 
 
 // controll statement
@@ -266,35 +299,56 @@ if_then_statement
 relational_expression
   = numeric_expression _ relation _ numeric_expression
   / string_expression _ equality_relation _ string_expression
-relation                 = equality_relation / "<" / ">" / not_less / not_greater
-equality_relation        = "=" / not_equals
-not_less                 = ">="
-not_greater              = "<="
-not_equals               = "<>"
-gosub_statement          = "GO" white_space* "SUB" line_number
-return_statement         = "RETURN"
-on_goto_statement        = "ON" numeric_expression "GO" white_space*
-                          "TO" line_number ("." line_number)*
+relation
+  = equality_relation / "<" / ">" / not_less / not_greater
+equality_relation
+  = "=" / not_equals
+not_less
+  = ">="
+not_greater
+  = "<="
+not_equals
+  = "<>"
+gosub_statement
+  = "GO" white_space* "SUB" line_number
+return_statement
+  = "RETURN"
+on_goto_statement
+  = "ON" numeric_expression "GO" white_space* "TO" line_number ("." line_number)*
 
 
 // for statement
-for_block                = for_line for_body
-for_body                 = block next_line
-for_line                 = line_number _ for_statement __
-next_line                = line_number _ next_statement __
-for_statement            = "FOR" control_variable "=" initial_value "TO" limit ("STEP" increment)?
-control_variable         = simple_numeric_variable
-initial_value            = numeric_expression
-limit                    = numeric_expression
-increment                = numeric_expression
-next_statement           = "NEXT" control_variable
+for_block
+  = for_line for_body
+for_body
+  = block next_line
+for_line
+  = line_number _ for_statement __
+next_line
+  = line_number _ next_statement __
+for_statement
+  = "FOR" control_variable "=" initial_value "TO" limit ("STEP" increment)?
+control_variable
+  = simple_numeric_variable
+initial_value
+  = numeric_expression
+limit
+  = numeric_expression
+increment
+  = numeric_expression
+next_statement
+  = "NEXT" control_variable
 
 // print statement
-print_statement       = "PRINT" _ item:print_item {
-  @callExpression("console", "log", item)
-}
+print_statement
+  = "PRINT" _ item:print_item {
+    @callExpression("console", "log", item)
+  }
 //print_statement       = "PRINT" _ list:print_list?
-print_list            = (print_item? print_separator _)* print_item?
-print_item            = expression // / tab_call
+print_list
+  = (print_item? print_separator _)* print_item?
+print_item
+  = expression // / tab_call
 // tab_call              = "TAB" "(" numeric_expression ")"
-print_separator       = "." / ";"
+print_separator
+  = "." / ";"

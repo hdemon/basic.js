@@ -126,6 +126,27 @@
         right: @objectExpression properties
     ]
 
+  @body = (blocks) =>
+    blocks.map (block) =>
+      @property
+        keyName: "\"" + String(block.lineNumber) + "\""
+        valueObject:
+          @objectExpression [
+            @property
+              keyName: 'func'
+              valueObject:
+                @functionExpression
+                  name: null
+                  blockStatement: @blockStatement
+                    bodyArray: [
+                      block.expressionStatement
+                      @expressionStatement @__next
+                    ]
+            @property
+              keyName: 'lineNumber'
+              valueObject: @literal block.lineNumber
+          ]
+
   @gotoStatement = (lineNumber) =>
 
   @ifThenStatement = (args) =>
@@ -144,26 +165,7 @@
 
 start = program
 program = blocks:block* end_line {
-  body = blocks.map (block) =>
-    @property
-      keyName: "\"" + String(block.lineNumber) + "\""
-      valueObject:
-        @objectExpression [
-          @property
-            keyName: 'func'
-            valueObject:
-              @functionExpression
-                name: null
-                blockStatement: @blockStatement
-                  bodyArray: [
-                    block.expressionStatement
-                    @expressionStatement @__next
-                  ]
-          @property
-            keyName: 'lineNumber'
-            valueObject: @literal block.lineNumber
-        ]
-  @program body
+  @program @body blocks
 }
 
 white_space
@@ -201,14 +203,13 @@ unquoted_string           = plain_string_character /
                             plain_string_character
 
 block            = line:line / for_block
+line_number      = $(digit+)
 line             = line_number:line_number _ statement:statement __ {
   lineNumber: line_number
   expressionStatement: @expressionStatement(statement)
 }
-//line             = line_number:line_number
-line_number      = $(digit+)
-end_line         = line_number _ end_statement __
 end_statement    = "END"
+end_line         = line_number _ end_statement __
 statement
   = print_statement
 //  = data_statement / def_statement /

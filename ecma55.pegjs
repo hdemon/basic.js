@@ -221,10 +221,10 @@ end_statement
 end_line
   = line_number _ end_statement __
 statement
-  = print_statement
+  = print_statement /
 //  = data_statement / def_statement /
 //    dimension _statement / gosub_statement /
-  / goto_statement / if_then_statement
+  goto_statement / if_then_statement
 //    input_statement / let_statement /
 //    on_goto_statement / option_statement /
 //    print_statement / randomize_statement /
@@ -339,16 +339,17 @@ increment
 next_statement
   = "NEXT" control_variable
 
+
 // print statement
 print_statement
   = "PRINT" _ item:print_item {
     @callExpression("console", "log", item)
   }
-//print_statement       = "PRINT" _ list:print_list?
 print_list
   = (print_item? print_separator _)* print_item?
 print_item
-  = expression // / tab_call
-// tab_call              = "TAB" "(" numeric_expression ")"
+  = expression / tab_call
+tab_call
+  = "TAB" "(" numeric_expression ")"
 print_separator
   = "." / ";"

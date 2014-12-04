@@ -4,48 +4,6 @@
       type: 'Program'
       body: body
 
-    property: (args) ->
-      type: 'Property'
-      key:
-        type: 'Identifier'
-        name: args.keyName
-      value: args.valueObject
-      kind: 'init'
-
-    programProperties: (blocks) =>
-      blocks.map (block) =>
-        @property
-          keyName: "\"" + String(block.lineNumber) + "\""
-          valueObject:
-            @objectExpression [
-              @property
-                keyName: 'func'
-                valueObject:
-                  @functionExpression
-                    name: null
-                    blockStatement: @blockStatement
-                      bodyArray: [
-                        block.expressionStatement
-                        @expressionStatement @nextMethod()
-                      ]
-              @property
-                keyName: 'lineNumber'
-                valueObject: @literal block.lineNumber
-            ]
-
-    programObject: (properties) =>
-      type: 'Program'
-      body: [
-        type: 'ExpressionStatement'
-        expression:
-          type: 'AssignmentExpression'
-          operator: '='
-          left:
-            type: 'Identifier'
-            name: 'program'
-          right: @objectExpression properties
-      ]
-
     controllerMethodCall: (args) ->
       type: 'CallExpression'
       callee:
@@ -84,6 +42,14 @@
       type: 'ObjectExpression'
       properties: propertyArray
 
+    property: (args) ->
+      type: 'Property'
+      key:
+        type: 'Identifier'
+        name: args.keyName
+      value: args.valueObject
+      kind: 'init'
+
     callExpression: (objectName, propertyName, argumentsObject) ->
       type: 'CallExpression'
       callee:
@@ -119,7 +85,51 @@
 
 start = program
 program = blocks:block* end_line {
-  @_.programObject @_.programProperties blocks
+  # generate 'program = { key: value }'
+  programObject = (properties) =>
+    type: 'Program'
+    body: [
+      type: 'ExpressionStatement'
+      expression:
+        type: 'AssignmentExpression'
+        operator: '='
+        left:
+          type: 'Identifier'
+          name: 'program'
+        right: @_.objectExpression properties
+    ]
+
+  lineNumberProperty = (lineNumber) =>
+    @_.property
+      keyName: 'lineNumber'
+      valueObject: @_.literal lineNumber
+
+  nextMethod = =>
+    @_.controllerMethodCall
+      methodName: '__next'
+      arguments: [
+        type: 'ThisExpression'
+      ]
+
+  properties = blocks.map (block) =>
+    @_.property
+      keyName: "\"" + String(block.lineNumber) + "\""
+      valueObject:
+        @_.objectExpression [
+          @_.property
+            keyName: 'func'
+            valueObject:
+              @_.functionExpression
+                name: null
+                blockStatement: @_.blockStatement
+                  bodyArray: [
+                    block.expressionStatement
+                    @_.expressionStatement nextMethod()
+                  ]
+          lineNumberProperty block.lineNumber
+        ]
+
+  programObject properties
 }
 
 white_space

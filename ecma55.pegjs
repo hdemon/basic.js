@@ -72,14 +72,6 @@
           type: 'ThisExpression'
         ]
 
-    gotoMethod: (lineNumber) =>
-      @controllerMethodCall
-        methodName: '__goto'
-        arguments: [
-          type: 'ThisExpression'
-          @literal lineNumber
-        ]
-
     blockStatement: (args) ->
       type: 'BlockStatement'
       body: args.bodyArray
@@ -117,33 +109,9 @@
       generator:  false
       expression: false
 
-    functionDeclaration: (name, blockStatement) ->
-      type: "FunctionDeclaration"
-      id:
-        type: "Identifier"
-        name: name
-      params: []
-      defaults: []
-      body: blockStatement
-      rest: null
-      generator: false
-      expression: false
-
     literal: (value) ->
       type: 'Literal'
       value: value
-
-    ifThenStatement: (args) =>
-      type: 'IfStatement'
-      test:
-        type: 'BinaryExpression'
-        operator: args.operator
-        left: args.left
-        right: args.right
-      consequent:
-        type: 'ExpressionStatement'
-        expression: args.callExpression
-      alternate: null
 
   @_ = new Initializer
 }
@@ -278,7 +246,12 @@ string_expression
 // controll statement
 goto_statement
   = "GO" white_space* "TO" _ lineNumber:line_number {
-    @_.gotoMethod lineNumber
+    @_.controllerMethodCall
+      methodName: '__goto'
+      arguments: [
+        type: 'ThisExpression'
+        @_.literal lineNumber
+      ]
   }
 if_then_statement
   = "IF" _ relational_expression _ "THEN" _ line_number

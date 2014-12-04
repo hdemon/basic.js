@@ -5,6 +5,82 @@
     type: 'Program'
     body: body
 
+  @property = (args) ->
+    type: 'Property'
+    key:
+      type: 'Identifier'
+      name: args.keyName
+    value: args.valueObject
+    kind: 'init'
+
+  @programProperties = (blocks) =>
+    blocks.map (block) =>
+      @property
+        keyName: "\"" + String(block.lineNumber) + "\""
+        valueObject:
+          @objectExpression [
+            @property
+              keyName: 'func'
+              valueObject:
+                @functionExpression
+                  name: null
+                  blockStatement: @blockStatement
+                    bodyArray: [
+                      block.expressionStatement
+                      @expressionStatement @nextMethod()
+                    ]
+            @property
+              keyName: 'lineNumber'
+              valueObject: @literal block.lineNumber
+          ]
+
+  @programObject = (properties) =>
+    type: 'Program'
+    body: [
+      type: 'ExpressionStatement'
+      expression:
+        type: 'AssignmentExpression'
+        operator: '='
+        left:
+          type: 'Identifier'
+          name: 'program'
+        right: @objectExpression properties
+    ]
+
+  @controllerMethodCall = (args) ->
+    type: 'CallExpression'
+    callee:
+      type: 'MemberExpression'
+      computed: false
+      object:
+        type: 'MemberExpression'
+        computed: false
+        object:
+          type: 'Identifier'
+          name: 'controller'
+        property:
+          type: 'Identifier'
+          name: args.methodName
+      property:
+        type: 'Identifier'
+        name: 'call'
+    arguments: args.arguments
+
+  @nextMethod = =>
+    @controllerMethodCall
+      methodName: '__next'
+      arguments: [
+        type: 'ThisExpression'
+      ]
+
+  @gotoMethod = (lineNumber) =>
+    @controllerMethodCall
+      methodName: '__goto'
+      arguments: [
+        type: 'ThisExpression'
+        @literal lineNumber
+      ]
+
   @blockStatement = (args) ->
     type: 'BlockStatement'
     body: args.bodyArray
@@ -16,14 +92,6 @@
   @objectExpression = (propertyArray) ->
     type: 'ObjectExpression'
     properties: propertyArray
-
-  @property = (args) ->
-    type: 'Property'
-    key:
-      type: 'Identifier'
-      name: args.keyName
-    value: args.valueObject
-    kind: 'init'
 
   @callExpression = (objectName, propertyName, argumentsObject) ->
     type: 'CallExpression'
@@ -40,6 +108,16 @@
       argumentsObject
     ]
 
+  @functionExpression = (args) ->
+    type: 'FunctionExpression'
+    id: args.name || null
+    params: []
+    defaults: []
+    body: args.blockStatement
+    rest: null
+    generator:  false
+    expression: false
+
   @functionDeclaration = (name, blockStatement) ->
     type: "FunctionDeclaration"
     id:
@@ -52,102 +130,9 @@
     generator: false
     expression: false
 
-  @functionExpression = (args) ->
-    type: 'FunctionExpression'
-    id: args.name || null
-    params: []
-    defaults: []
-    body: args.blockStatement
-    rest: null
-    generator:  false
-    expression: false
-
   @literal = (value) ->
     type: 'Literal'
     value: value
-
-  # program.__next.call(this);
-  #
-  # todo: DRYed up
-  @__next =
-
-      type: 'CallExpression'
-      callee:
-        type: 'MemberExpression'
-        computed: false
-        object:
-          type: 'MemberExpression'
-          computed: false
-          object:
-            type: 'Identifier'
-            name: 'controller'
-          property:
-            type: 'Identifier'
-            name: '__next'
-        property:
-          type: 'Identifier'
-          name: 'call'
-      arguments: [
-        type: 'ThisExpression'
-      ]
-
-  @__goto = (lineNumber) =>
-    type: 'CallExpression'
-    callee:
-      type: 'MemberExpression'
-      computed: false
-      object:
-        type: 'MemberExpression'
-        computed: false
-        object:
-          type: 'Identifier'
-          name: 'controller'
-        property:
-          type: 'Identifier'
-          name: '__goto'
-      property:
-        type: 'Identifier'
-        name: 'call'
-    arguments: [
-      type: 'ThisExpression'
-      @literal lineNumber
-    ]
-
-  @program = (properties) =>
-    type: 'Program'
-    body: [
-      type: 'ExpressionStatement'
-      expression:
-        type: 'AssignmentExpression'
-        operator: '='
-        left:
-          type: 'Identifier'
-          name: 'program'
-        right: @objectExpression properties
-    ]
-
-  @body = (blocks) =>
-    blocks.map (block) =>
-      @property
-        keyName: "\"" + String(block.lineNumber) + "\""
-        valueObject:
-          @objectExpression [
-            @property
-              keyName: 'func'
-              valueObject:
-                @functionExpression
-                  name: null
-                  blockStatement: @blockStatement
-                    bodyArray: [
-                      block.expressionStatement
-                      @expressionStatement @__next
-                    ]
-            @property
-              keyName: 'lineNumber'
-              valueObject: @literal block.lineNumber
-          ]
-
-  @gotoStatement = (lineNumber) =>
 
   @ifThenStatement = (args) =>
     type: 'IfStatement'
@@ -165,7 +150,7 @@
 
 start = program
 program = blocks:block* end_line {
-  @program @body blocks
+  @programObject @programProperties blocks
 }
 
 white_space
@@ -292,7 +277,7 @@ string_expression
 // controll statement
 goto_statement
   = "GO" white_space* "TO" _ lineNumber:line_number {
-    @__goto lineNumber
+    @gotoMethod lineNumber
   }
 if_then_statement
   = "IF" _ relational_expression _ "THEN" _ line_number

@@ -1,156 +1,157 @@
 {
-  @_ = require 'lodash'
+  class Initializer
+    programNode: (body) ->
+      type: 'Program'
+      body: body
 
-  @programNode = (body) ->
-    type: 'Program'
-    body: body
+    property: (args) ->
+      type: 'Property'
+      key:
+        type: 'Identifier'
+        name: args.keyName
+      value: args.valueObject
+      kind: 'init'
 
-  @property = (args) ->
-    type: 'Property'
-    key:
-      type: 'Identifier'
-      name: args.keyName
-    value: args.valueObject
-    kind: 'init'
+    programProperties: (blocks) =>
+      blocks.map (block) =>
+        @property
+          keyName: "\"" + String(block.lineNumber) + "\""
+          valueObject:
+            @objectExpression [
+              @property
+                keyName: 'func'
+                valueObject:
+                  @functionExpression
+                    name: null
+                    blockStatement: @blockStatement
+                      bodyArray: [
+                        block.expressionStatement
+                        @expressionStatement @nextMethod()
+                      ]
+              @property
+                keyName: 'lineNumber'
+                valueObject: @literal block.lineNumber
+            ]
 
-  @programProperties = (blocks) =>
-    blocks.map (block) =>
-      @property
-        keyName: "\"" + String(block.lineNumber) + "\""
-        valueObject:
-          @objectExpression [
-            @property
-              keyName: 'func'
-              valueObject:
-                @functionExpression
-                  name: null
-                  blockStatement: @blockStatement
-                    bodyArray: [
-                      block.expressionStatement
-                      @expressionStatement @nextMethod()
-                    ]
-            @property
-              keyName: 'lineNumber'
-              valueObject: @literal block.lineNumber
-          ]
+    programObject: (properties) =>
+      type: 'Program'
+      body: [
+        type: 'ExpressionStatement'
+        expression:
+          type: 'AssignmentExpression'
+          operator: '='
+          left:
+            type: 'Identifier'
+            name: 'program'
+          right: @objectExpression properties
+      ]
 
-  @programObject = (properties) =>
-    type: 'Program'
-    body: [
-      type: 'ExpressionStatement'
-      expression:
-        type: 'AssignmentExpression'
-        operator: '='
-        left:
+    controllerMethodCall: (args) ->
+      type: 'CallExpression'
+      callee:
+        type: 'MemberExpression'
+        computed: false
+        object:
+          type: 'MemberExpression'
+          computed: false
+          object:
+            type: 'Identifier'
+            name: 'controller'
+          property:
+            type: 'Identifier'
+            name: args.methodName
+        property:
           type: 'Identifier'
-          name: 'program'
-        right: @objectExpression properties
-    ]
+          name: 'call'
+      arguments: args.arguments
 
-  @controllerMethodCall = (args) ->
-    type: 'CallExpression'
-    callee:
-      type: 'MemberExpression'
-      computed: false
-      object:
+    nextMethod: =>
+      @controllerMethodCall
+        methodName: '__next'
+        arguments: [
+          type: 'ThisExpression'
+        ]
+
+    gotoMethod: (lineNumber) =>
+      @controllerMethodCall
+        methodName: '__goto'
+        arguments: [
+          type: 'ThisExpression'
+          @literal lineNumber
+        ]
+
+    blockStatement: (args) ->
+      type: 'BlockStatement'
+      body: args.bodyArray
+
+    expressionStatement: (expressionObject) ->
+      type: 'ExpressionStatement'
+      expression: expressionObject
+
+    objectExpression: (propertyArray) ->
+      type: 'ObjectExpression'
+      properties: propertyArray
+
+    callExpression: (objectName, propertyName, argumentsObject) ->
+      type: 'CallExpression'
+      callee:
         type: 'MemberExpression'
         computed: false
         object:
           type: 'Identifier'
-          name: 'controller'
+          name: objectName
         property:
           type: 'Identifier'
-          name: args.methodName
-      property:
-        type: 'Identifier'
-        name: 'call'
-    arguments: args.arguments
-
-  @nextMethod = =>
-    @controllerMethodCall
-      methodName: '__next'
+          name: propertyName
       arguments: [
-        type: 'ThisExpression'
+        argumentsObject
       ]
 
-  @gotoMethod = (lineNumber) =>
-    @controllerMethodCall
-      methodName: '__goto'
-      arguments: [
-        type: 'ThisExpression'
-        @literal lineNumber
-      ]
+    functionExpression: (args) ->
+      type: 'FunctionExpression'
+      id: args.name || null
+      params: []
+      defaults: []
+      body: args.blockStatement
+      rest: null
+      generator:  false
+      expression: false
 
-  @blockStatement = (args) ->
-    type: 'BlockStatement'
-    body: args.bodyArray
+    functionDeclaration: (name, blockStatement) ->
+      type: "FunctionDeclaration"
+      id:
+        type: "Identifier"
+        name: name
+      params: []
+      defaults: []
+      body: blockStatement
+      rest: null
+      generator: false
+      expression: false
 
-  @expressionStatement = (expressionObject) ->
-    type: 'ExpressionStatement'
-    expression: expressionObject
+    literal: (value) ->
+      type: 'Literal'
+      value: value
 
-  @objectExpression = (propertyArray) ->
-    type: 'ObjectExpression'
-    properties: propertyArray
+    ifThenStatement: (args) =>
+      type: 'IfStatement'
+      test:
+        type: 'BinaryExpression'
+        operator: args.operator
+        left: args.left
+        right: args.right
+      consequent:
+        type: 'ExpressionStatement'
+        expression: args.callExpression
+      alternate: null
 
-  @callExpression = (objectName, propertyName, argumentsObject) ->
-    type: 'CallExpression'
-    callee:
-      type: 'MemberExpression'
-      computed: false
-      object:
-        type: 'Identifier'
-        name: objectName
-      property:
-        type: 'Identifier'
-        name: propertyName
-    arguments: [
-      argumentsObject
-    ]
-
-  @functionExpression = (args) ->
-    type: 'FunctionExpression'
-    id: args.name || null
-    params: []
-    defaults: []
-    body: args.blockStatement
-    rest: null
-    generator:  false
-    expression: false
-
-  @functionDeclaration = (name, blockStatement) ->
-    type: "FunctionDeclaration"
-    id:
-      type: "Identifier"
-      name: name
-    params: []
-    defaults: []
-    body: blockStatement
-    rest: null
-    generator: false
-    expression: false
-
-  @literal = (value) ->
-    type: 'Literal'
-    value: value
-
-  @ifThenStatement = (args) =>
-    type: 'IfStatement'
-    test:
-      type: 'BinaryExpression'
-      operator: args.operator
-      left: args.left
-      right: args.right
-    consequent:
-      type: 'ExpressionStatement'
-      expression: args.callExpression
-    alternate: null
+  @_ = new Initializer
 }
 
 
 start = program
 program = blocks:block* end_line {
-  @programObject @programProperties blocks
+  @_.programObject @_.programProperties blocks
 }
 
 white_space
@@ -185,7 +186,7 @@ plain_string_character
 remark_string
   = string_character*
 quoted_string
-  = '"' value:$(quoted_string_character*) '"' { @literal(value) }
+  = '"' value:$(quoted_string_character*) '"' { @_.literal(value) }
 unquoted_string
   = plain_string_character /
     plain_string_character
@@ -199,7 +200,7 @@ line_number
 line
   = line_number:line_number _ statement:statement __ {
     lineNumber: line_number
-    expressionStatement: @expressionStatement(statement)
+    expressionStatement: @_.expressionStatement(statement)
   }
 end_statement
   = "END"
@@ -277,7 +278,7 @@ string_expression
 // controll statement
 goto_statement
   = "GO" white_space* "TO" _ lineNumber:line_number {
-    @gotoMethod lineNumber
+    @_.gotoMethod lineNumber
   }
 if_then_statement
   = "IF" _ relational_expression _ "THEN" _ line_number
@@ -328,7 +329,7 @@ next_statement
 // print statement
 print_statement
   = "PRINT" _ item:print_item {
-    @callExpression("console", "log", item)
+    @_.callExpression("console", "log", item)
   }
 print_list
   = (print_item? print_separator _)* print_item?

@@ -76,7 +76,7 @@ string_character
 quoted_string_character
   = "!" / "#" / "$" / "%" / "&" /
     "'" / "(" / ")" / "*" / "," / "/" /
-    ":" / ";" / "<" / "=" / ">" /
+    ":" / ";" / "<" / equals_sign / ">" /
     "?" / "^" / "_" / unquoted_string_character
 unquoted_string_character
   = " " / plain_string_character
@@ -92,12 +92,19 @@ unquoted_string
     unquoted_string_character*
     plain_string_character
 
+equals_sign
+  = "="
+
 block
   = line:line / for_block
 line_number
   = $(digit+)
 line
   = line_number:line_number _ statement:statement __ {
+    console.log "statement"
+    console.log statement
+    console.log "----------------"
+
     lineNumber: line_number
     statement: statement
   }
@@ -109,8 +116,10 @@ statement
   = print_statement /
 //  = data_statement / def_statement /
 //    dimension _statement / gosub_statement /
-  goto_statement / if_then_statement
-//    input_statement / let_statement /
+  goto_statement /
+  if_then_statement /
+  let_statement
+//    input_statement /
 //    on_goto_statement / option_statement /
 //    print_statement / randomize_statement /
 //    read_statement / remark_statement /
@@ -139,31 +148,43 @@ numeric_constant
 sign
   = "+" / "-"
 numeric_rep
-  = significand exrad?
+  = significand:significand exrad? {
+    Number significand.join('')
+  }
 significand
-  = integer "."? / integer? fraction
+  = integer? fraction / integer "."?
 integer
-  = digit digit*
+  = digits:(digit digit*) {
+    (@_.flatten digits).join('')
+  }
 fraction
-  = "." digit digit*
+  = "." digits:(digit digit*) {
+    "." + (@_.flatten digits).join('')
+  }
 exrad
   = "E" sign? integer
-string_constant   = quoted_string
+string_constant
+  = quoted_string
 
 // expressions
 expression
   = numeric_expression / string_expression
 numeric_expression
-  = sign? term (sign term)*
+  // = term:"1.111" {
+  = sign:sign? term:term __ (sign __ term)* {
+    console.log "term------------"
+    console.log JSON.stringify term
+    @_.reject (@_.flatten term), (element) -> element == '\n'
+  }
 term
-  = factor (multiplier factor)*
+  = factor __ (multiplier __ factor)*
 factor
-  = primary ("^" primary)*
+  = primary __ ("^" __ primary)*
 multiplier
   = "*" / "/"
 // primary = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
 primary
-  = numeric_variable / numeric_rep / "(" numeric_expression ")"
+  = numeric_variable / rep:numeric_rep / "(" numeric_expression ")"
 // numeric_function_ref = numeric_function_name argument_list?
 // numeric_function_name = numeric_defined_function / numeric_supplied_function
 argument_list
@@ -243,3 +264,24 @@ tab_call
   = "TAB" "(" numeric_expression ")"
 print_separator
   = "." / ";"
+
+
+// 11. let statement
+let_statement
+  = numeric_let_statement / string_let_statement
+numeric_let_statement
+  = "LET" _ variableName:numeric_variable _ equals_sign _ value:numeric_expression __ {
+    console.log "numeric"
+
+    console.log JSON.stringify value
+
+    # tmp
+    v = variableName[0]
+    console.log v
+
+    @$.variableDeclaration [
+      @$.variableDeclarator {variableName:v, value}
+    ]
+  }
+string_let_statement
+  = "LET" _ string_variable _ equals_sign _ string_expression __

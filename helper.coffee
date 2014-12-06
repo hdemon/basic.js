@@ -37,6 +37,21 @@ class Helper
     type: 'ExpressionStatement'
     expression: expressionObject
 
+  variableDeclaration: (declarationObjects) ->
+    type: 'VariableDeclaration'
+    declarations: declarationObjects
+    kind: 'var'
+
+  variableDeclarator: (args) ->
+    type: 'VariableDeclarator'
+    id:
+      type: 'Identifier'
+      name: args.variableName
+    init:
+      type: 'Literal'
+      value: args.value
+      raw: String args.value
+
   objectExpression: (propertyArray) ->
     type: 'ObjectExpression'
     properties: propertyArray

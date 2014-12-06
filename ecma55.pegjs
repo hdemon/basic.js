@@ -1,6 +1,6 @@
 {
   Helper = require '../../../helper'
-  @_ = new Helper
+  @$ = new Helper
 }
 
 start = program
@@ -16,35 +16,35 @@ program = blocks:block* end_line {
         left:
           type: 'Identifier'
           name: 'program'
-        right: @_.objectExpression properties
+        right: @$.objectExpression properties
     ]
 
   lineNumberProperty = (lineNumber) =>
-    @_.property
+    @$.property
       keyName: 'lineNumber'
-      valueObject: @_.literal lineNumber
+      valueObject: @$.literal lineNumber
 
   nextMethod = =>
-    @_.controllerMethodCall
+    @$.controllerMethodCall
       methodName: '__next'
       arguments: [
         type: 'ThisExpression'
       ]
 
   properties = blocks.map (block) =>
-    @_.property
+    @$.property
       keyName: "\"" + String(block.lineNumber) + "\""
       valueObject:
-        @_.objectExpression [
-          @_.property
+        @$.objectExpression [
+          @$.property
             keyName: 'func'
             valueObject:
-              @_.functionExpression
+              @$.functionExpression
                 name: null
-                blockStatement: @_.blockStatement
+                blockStatement: @$.blockStatement
                   bodyArray: [
                     block.statement
-                    @_.expressionStatement nextMethod()
+                    @$.expressionStatement nextMethod()
                   ]
           lineNumberProperty block.lineNumber
         ]
@@ -84,7 +84,7 @@ plain_string_character
 remark_string
   = string_character*
 quoted_string
-  = '"' value:$(quoted_string_character*) '"' { @_.literal(value) }
+  = '"' value:$(quoted_string_character*) '"' { @$.literal(value) }
 unquoted_string
   = plain_string_character /
     plain_string_character
@@ -176,11 +176,11 @@ string_expression
 // controll statement
 goto_statement
   = "GO" white_space* "TO" _ lineNumber:line_number {
-    @_.expressionStatement @_.controllerMethodCall
+    @$.expressionStatement @$.controllerMethodCall
       methodName: '__goto'
       arguments: [
         type: 'ThisExpression'
-        @_.literal lineNumber
+        @$.literal lineNumber
       ]
   }
 if_then_statement
@@ -232,7 +232,7 @@ next_statement
 // print statement
 print_statement
   = "PRINT" _ item:print_item {
-    @_.expressionStatement @_.callExpression("console", "log", item)
+    @$.expressionStatement @$.callExpression("console", "log", item)
   }
 print_list
   = (print_item? print_separator _)* print_item?

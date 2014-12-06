@@ -1,3 +1,5 @@
+_ = require 'lodash'
+
 class Helper
   programNode: (body) ->
     type: 'Program'
@@ -47,10 +49,11 @@ class Helper
     id:
       type: 'Identifier'
       name: args.variableName
-    init:
-      type: 'Literal'
-      value: args.value
-      raw: String args.value
+    init: args.expression
+
+    # type: 'Literal'
+    # value: args.value
+    # raw: String args.value
 
   objectExpression: (propertyArray) ->
     type: 'ObjectExpression'
@@ -89,8 +92,17 @@ class Helper
     generator:  false
     expression: false
 
+  binaryExpression: (args) ->
+    type: 'BinaryExpression'
+    operator: args.operator
+    left: args.left
+    right: args.right
+
   literal: (value) ->
     type: 'Literal'
     value: value
+
+  removeWhiteSpace: (array) ->
+    _.reject array, (element) -> element == [' ']
 
 module.exports = Helper

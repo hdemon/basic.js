@@ -63,7 +63,7 @@ white_space
 end_of_line
   = "\n" / "\r\n" / "\r" / "\u2028" / "\u2029"
 __
-  = (white_space / end_of_line)*
+  = (white_space / end_of_line)* { " " }
 _
   = white_space+
 
@@ -149,7 +149,11 @@ sign
   = "+" / "-"
 numeric_rep
   = significand:significand exrad? {
-    Number significand.join('')
+    raw = significand.join('')
+
+    type: "Literal"
+    value: Number raw
+    raw: raw
   }
 significand
   = integer? fraction / integer "."?
@@ -171,20 +175,56 @@ expression
   = numeric_expression / string_expression
 numeric_expression
   // = term:"1.111" {
-  = sign:sign? term:term __ (sign __ term)* {
-    console.log "term------------"
-    console.log JSON.stringify term
-    @_.reject (@_.flatten term), (element) -> element == '\n'
+  = sign:sign? leftTerm:term __ right:(sign __ term)* {
+    console.log "right------------"
+    console.log right
+
+#    buildBinaryExpression = (args) ->
+#      if right.length >= 2
+#        _right = right.pop()
+#        buildBinaryExpression
+#
+#
+#      type: 'BinaryExpression'
+#      operator: args.operator
+#      left: args.left
+#      right: args.right
+#
+#    if !@_.isEmpty right
+#      operator = @_.first right
+#      rightValue = @_.last right
+#
+#      @$.binaryExpression
+#        # leftが不完全
+#        leftValue: leftTerm
+#        rightValue: rightValue
+#        operator: operator
+#    else
+#      type: 'Literal'
+#      value: value
+
   }
 term
-  = factor __ (multiplier __ factor)*
+  = factor:factor __ tail:(multiplier __ factor)* {
+    console.log factor
+    factor
+  }
 factor
-  = primary __ ("^" __ primary)*
+  = primary:primary __ tail:("^" __ primary)* {
+    if @_.isEmpty tail
+      primary
+    else
+      Math.pow primary, (@_.last tail[0])
+  }
 multiplier
   = "*" / "/"
 // primary = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
 primary
-  = numeric_variable / rep:numeric_rep / "(" numeric_expression ")"
+  = variable:numeric_variable / rep:numeric_rep / "(" expression:numeric_expression ")" {
+    if rep
+      console.log rep
+
+  }
 // numeric_function_ref = numeric_function_name argument_list?
 // numeric_function_name = numeric_defined_function / numeric_supplied_function
 argument_list
@@ -270,17 +310,14 @@ print_separator
 let_statement
   = numeric_let_statement / string_let_statement
 numeric_let_statement
-  = "LET" _ variableName:numeric_variable _ equals_sign _ value:numeric_expression __ {
-    console.log "numeric"
-
-    console.log JSON.stringify value
-
+  = "LET" _ variableName:numeric_variable _ equals_sign _ expression:numeric_expression __ {
     # tmp
     v = variableName[0]
     console.log v
+    console.log expression
 
     @$.variableDeclaration [
-      @$.variableDeclarator {variableName:v, value}
+      @$.variableDeclarator {variableName:v, expression}
     ]
   }
 string_let_statement

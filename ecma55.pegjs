@@ -43,7 +43,7 @@ program = blocks:block* end_line {
                 name: null
                 blockStatement: @_.blockStatement
                   bodyArray: [
-                    block.expressionStatement
+                    block.statement
                     @_.expressionStatement nextMethod()
                   ]
           lineNumberProperty block.lineNumber
@@ -98,7 +98,7 @@ line_number
 line
   = line_number:line_number _ statement:statement __ {
     lineNumber: line_number
-    expressionStatement: @_.expressionStatement(statement)
+    statement: statement
   }
 end_statement
   = "END"
@@ -176,7 +176,7 @@ string_expression
 // controll statement
 goto_statement
   = "GO" white_space* "TO" _ lineNumber:line_number {
-    @_.controllerMethodCall
+    @_.expressionStatement @_.controllerMethodCall
       methodName: '__goto'
       arguments: [
         type: 'ThisExpression'
@@ -232,7 +232,7 @@ next_statement
 // print statement
 print_statement
   = "PRINT" _ item:print_item {
-    @_.callExpression("console", "log", item)
+    @_.expressionStatement @_.callExpression("console", "log", item)
   }
 print_list
   = (print_item? print_separator _)* print_item?

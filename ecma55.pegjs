@@ -1,5 +1,6 @@
 {
   Helper = require '../../../helper'
+  @_ = require 'lodash'
   @$ = new Helper
 }
 

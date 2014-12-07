@@ -1,7 +1,7 @@
 {
-  Helper = require '../../../helper'
+  Builder = require '../../../builder'
   @_ = require 'lodash'
-  @$ = new Helper
+  @$ = new Builder
 }
 
 start = program

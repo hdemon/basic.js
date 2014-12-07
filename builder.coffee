@@ -1,6 +1,6 @@
 _ = require 'lodash'
 
-class Helper
+class Builder
   programNode: (body) ->
     type: 'Program'
     body: body
@@ -133,4 +133,4 @@ class Helper
   removeWhiteSpace: (array) ->
     _.reject array, (element) -> element == [' ']
 
-module.exports = Helper
+module.exports = Builder

@@ -76,7 +76,7 @@ string_character
 quoted_string_character
   = "!" / "#" / "$" / "%" / "&" /
     "'" / "(" / ")" / "*" / "," / "/" /
-    ":" / ";" / "<" / equals_sign / ">" /
+    ":" / ";" / "<" / "=" / ">" /
     "?" / "^" / "_" / unquoted_string_character
 unquoted_string_character
   = " " / plain_string_character
@@ -91,9 +91,6 @@ unquoted_string
     plain_string_character
     unquoted_string_character*
     plain_string_character
-
-equals_sign
-  = "="
 
 block
   = line:line / for_block
@@ -321,8 +318,8 @@ print_separator
 let_statement
   = numeric_let_statement / string_let_statement
 numeric_let_statement
-  = "LET" _ variableIdentifier:numeric_variable _ equals_sign _ expression:numeric_expression __ {
+  = "LET" _ variableIdentifier:numeric_variable _ "=" _ expression:numeric_expression __ {
     @$.assignToVariable {variableIdentifier, expression}
   }
 string_let_statement
-  = "LET" _ string_variable _ equals_sign _ string_expression __
+  = "LET" _ string_variable _ "=" _ string_expression __

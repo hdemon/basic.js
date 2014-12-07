@@ -101,10 +101,6 @@ line_number
   = $(digit+)
 line
   = line_number:line_number _ statement:statement __ {
-    console.log "statement"
-    console.log statement
-    console.log "----------------"
-
     lineNumber: line_number
     statement: statement
   }
@@ -148,8 +144,9 @@ numeric_constant
 sign
   = "+" / "-"
 numeric_rep
-  = significand:significand exrad? {
+  = significand:significand exrad:exrad? {
     raw = significand.join('')
+    if exrad then raw += exrad.join('')
 
     type: "Literal"
     value: Number raw
@@ -175,38 +172,23 @@ expression
   = numeric_expression / string_expression
 numeric_expression
   // = term:"1.111" {
-  = sign:sign? leftTerm:term __ right:(sign __ term)* {
-    console.log "right------------"
-    console.log right
+  = sign:sign? leftTerm:term __ rightTerms:(sign __ term)* {
+    buildBinaryExpressionRecursively = (left, rights) =>
+      term = rights.pop()
+      operator = @_.first term
+      right = @_.last term
 
-#    buildBinaryExpression = (args) ->
-#      if right.length >= 2
-#        _right = right.pop()
-#        buildBinaryExpression
-#
-#
-#      type: 'BinaryExpression'
-#      operator: args.operator
-#      left: args.left
-#      right: args.right
-#
-#    if !@_.isEmpty right
-#      operator = @_.first right
-#      rightValue = @_.last right
-#
-#      @$.binaryExpression
-#        # leftが不完全
-#        leftValue: leftTerm
-#        rightValue: rightValue
-#        operator: operator
-#    else
-#      type: 'Literal'
-#      value: value
+      expression = @$.binaryExpression {left, right, operator}
 
+      if rights.length <= 0
+        expression
+      else
+        buildBinaryExpressionRecursively expression, rights
+
+    buildBinaryExpressionRecursively leftTerm, rightTerms.reverse()
   }
 term
   = factor:factor __ tail:(multiplier __ factor)* {
-    console.log factor
     factor
   }
 factor
@@ -220,11 +202,7 @@ multiplier
   = "*" / "/"
 // primary = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
 primary
-  = variable:numeric_variable / rep:numeric_rep / "(" expression:numeric_expression ")" {
-    if rep
-      console.log rep
-
-  }
+  = variable:numeric_variable / rep:numeric_rep / "(" expression:numeric_expression ")"
 // numeric_function_ref = numeric_function_name argument_list?
 // numeric_function_name = numeric_defined_function / numeric_supplied_function
 argument_list
@@ -313,8 +291,6 @@ numeric_let_statement
   = "LET" _ variableName:numeric_variable _ equals_sign _ expression:numeric_expression __ {
     # tmp
     v = variableName[0]
-    console.log v
-    console.log expression
 
     @$.variableDeclaration [
       @$.variableDeclarator {variableName:v, expression}

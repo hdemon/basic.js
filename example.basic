@@ -1,5 +1,5 @@
 10 PRINT "ABC"
 20 PRINT "DEF"
-30 LET A = 1.111 + 1 + 2 ^ 2
+30 LET A = 1.2 + 3 + 4
 
 999 END

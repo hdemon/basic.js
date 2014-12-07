@@ -19,4 +19,4 @@ parseToAst = (parserCode, code) ->
 
 ast = parseToAst peg, sourceCode
 # console.log pj.render ast
-console.log escodegen.generate(ast) + controllerCode
+console.log controllerCode + escodegen.generate(ast)

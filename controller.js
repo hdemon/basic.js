@@ -1,5 +1,6 @@
 var controller = {};
 var global = {};
+var program = {};
 
 controller.__next = function() {
   var lineIndexes = Object.keys(program);

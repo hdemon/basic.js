@@ -126,9 +126,17 @@ statement
 variable
   = numeric_variable / string_variable
 numeric_variable
-  = simple_numeric_variable / numeric_array_element
+  // = variableName:simple_numeric_variable / numeric_array_element {
+  = variableName:simple_numeric_variable {
+    type: "Identifier"
+    name: variableName
+  }
 simple_numeric_variable
-  = letter digit?
+  = letter:letter digits:digit? {
+    name = letter
+    name += digits.join('') if digits
+    name
+  }
 numeric_array_element
   = numeric_array_name subscript
 numeric_array_name
@@ -313,8 +321,8 @@ print_separator
 let_statement
   = numeric_let_statement / string_let_statement
 numeric_let_statement
-  = "LET" _ variableName:numeric_variable _ equals_sign _ expression:numeric_expression __ {
-    @$.assignToVariable {variableName: variableName[0], expression}
+  = "LET" _ variableIdentifier:numeric_variable _ equals_sign _ expression:numeric_expression __ {
+    @$.assignToVariable {variableIdentifier, expression}
   }
 string_let_statement
   = "LET" _ string_variable _ equals_sign _ string_expression __

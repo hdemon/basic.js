@@ -125,9 +125,7 @@ class Builder
         object:
             type: 'Identifier'
             name: 'global'
-        property:
-            type: 'Identifier'
-            name: args.variableName
+        property: args.variableIdentifier
       right: args.expression
 
   removeWhiteSpace: (array) ->

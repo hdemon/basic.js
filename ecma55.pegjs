@@ -171,7 +171,6 @@ string_constant
 expression
   = numeric_expression / string_expression
 numeric_expression
-  // = term:"1.111" {
   = sign:sign? leftTerm:term __ rightTerms:(sign __ term)* {
     buildBinaryExpressionRecursively = (left, rights) =>
       term = rights.pop()
@@ -185,18 +184,38 @@ numeric_expression
       else
         buildBinaryExpressionRecursively expression, rights
 
-    buildBinaryExpressionRecursively leftTerm, rightTerms.reverse()
+    if @_.isEmpty rightTerms
+      leftTerm
+    else
+      buildBinaryExpressionRecursively leftTerm, rightTerms.reverse()
   }
 term
   = factor:factor __ tail:(multiplier __ factor)* {
     factor
   }
 factor
-  = primary:primary __ tail:("^" __ primary)* {
+  = primary:primary __ tail:(__ "^" __ primary)* {
+    buildCallExpressionRecursively = (firstExpression, _tail) =>
+      term = _tail.pop()
+      value = @_.last term
+
+      expression = @$.callExpression
+        object: 'Math'
+        property: 'pow'
+        args: [
+          firstExpression
+          value
+        ]
+
+      if tail.length <= 0
+        expression
+      else
+        buildCallExpressionRecursively expression, _tail
+
     if @_.isEmpty tail
       primary
     else
-      Math.pow primary, (@_.last tail[0])
+      buildCallExpressionRecursively primary, tail.reverse()
   }
 multiplier
   = "*" / "/"

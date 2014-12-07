@@ -141,7 +141,10 @@ numeric_array_name
 subscript
   = "(" numeric_expression ("." numeric_expression)? ")"
 string_variable
-  = letter "$"
+  = letter:letter "$" {
+    type: "Identifier"
+    name: letter + "$"
+  }
 
 // constants
 numeric_constant
@@ -322,4 +325,6 @@ numeric_let_statement
     @$.assignToVariable {variableIdentifier, expression}
   }
 string_let_statement
-  = "LET" _ string_variable _ "=" _ string_expression __
+  = "LET" _ variableIdentifier:string_variable _ "=" _ expression:string_expression __ {
+    @$.assignToVariable {variableIdentifier, expression}
+  }

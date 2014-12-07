@@ -115,6 +115,21 @@ class Helper
     type: 'Literal'
     value: value
 
+  assignToVariable: (args) ->
+    @expressionStatement
+      type: 'AssignmentExpression'
+      operator: '='
+      left:
+        type: 'MemberExpression'
+        computed: false
+        object:
+            type: 'Identifier'
+            name: 'global'
+        property:
+            type: 'Identifier'
+            name: args.variableName
+      right: args.expression
+
   removeWhiteSpace: (array) ->
     _.reject array, (element) -> element == [' ']
 

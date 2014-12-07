@@ -314,12 +314,7 @@ let_statement
   = numeric_let_statement / string_let_statement
 numeric_let_statement
   = "LET" _ variableName:numeric_variable _ equals_sign _ expression:numeric_expression __ {
-    # tmp
-    v = variableName[0]
-
-    @$.variableDeclaration [
-      @$.variableDeclarator {variableName:v, expression}
-    ]
+    @$.assignToVariable {variableName: variableName[0], expression}
   }
 string_let_statement
   = "LET" _ string_variable _ equals_sign _ string_expression __

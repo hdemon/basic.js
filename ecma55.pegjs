@@ -65,7 +65,7 @@ end_of_line
 __
   = (white_space / end_of_line)* { " " }
 _
-  = white_space+
+  = white_space* { " " }
 
 letter
   = [A-Z]
@@ -171,7 +171,7 @@ string_constant
 expression
   = numeric_expression / string_expression
 numeric_expression
-  = sign:sign? leftTerm:term __ rightTerms:(sign __ term)* {
+  = sign:sign? leftTerm:term _ rightTerms:(sign _ term)* {
     _rightTerms = @_.map rightTerms, (term) =>
       operator: @_.first term
       value: @_.last term
@@ -184,7 +184,7 @@ numeric_expression
         rights: _rightTerms.reverse()
   }
 term
-  = factor:factor __ tail:(multiplier __ factor)* {
+  = factor:factor _ tail:(multiplier _ factor)* {
     _tail = @_.map tail, (term) =>
       operator: @_.first term
       value: @_.last term
@@ -197,7 +197,7 @@ term
         rights: _tail.reverse()
   }
 factor
-  = primary:primary __ tail:(__ "^" __ primary)* {
+  = primary:primary _ tail:(_ "^" _ primary)* {
     buildCallExpressionRecursively = (firstExpression, _tail) =>
       term = _tail.pop()
       value = @_.last term

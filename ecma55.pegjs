@@ -272,7 +272,10 @@ next_statement
 // print statement
 print_statement
   = "PRINT" _ item:print_item {
-    @$.expressionStatement @$.callExpression("console", "log", item)
+    @$.expressionStatement @$.callExpression
+      object: "console"
+      property: "log"
+      args: [item]
   }
 print_list
   = (print_item? print_separator _)* print_item?

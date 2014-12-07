@@ -67,20 +67,18 @@ class Helper
     value: args.valueObject
     kind: 'init'
 
-  callExpression: (objectName, propertyName, argumentsObject) ->
+  callExpression: (args) ->
     type: 'CallExpression'
     callee:
       type: 'MemberExpression'
       computed: false
       object:
         type: 'Identifier'
-        name: objectName
+        name: args.object
       property:
         type: 'Identifier'
-        name: propertyName
-    arguments: [
-      argumentsObject
-    ]
+        name: args.property
+    arguments: args.args
 
   functionExpression: (args) ->
     type: 'FunctionExpression'

@@ -172,43 +172,29 @@ expression
   = numeric_expression / string_expression
 numeric_expression
   = sign:sign? leftTerm:term __ rightTerms:(sign __ term)* {
-    # todo dried up
-    buildBinaryExpressionRecursively = (left, rights) =>
-      term = rights.pop()
-      operator = @_.first term
-      right = @_.last term
-
-      expression = @$.binaryExpression {left, right, operator}
-
-      if rights.length <= 0
-        expression
-      else
-        buildBinaryExpressionRecursively expression, rights
+    _rightTerms = @_.map rightTerms, (term) =>
+      operator: @_.first term
+      value: @_.last term
 
     if @_.isEmpty rightTerms
       leftTerm
     else
-      buildBinaryExpressionRecursively leftTerm, rightTerms.reverse()
+      @$.buildBinaryExpressionRecursively
+        left: leftTerm,
+        rights: _rightTerms.reverse()
   }
 term
   = factor:factor __ tail:(multiplier __ factor)* {
-    # todo dried up
-    buildBinaryExpressionRecursively = (left, rights) =>
-      term = rights.pop()
-      operator = @_.first term
-      right = @_.last term
-
-      expression = @$.binaryExpression {left, right, operator}
-
-      if rights.length <= 0
-        expression
-      else
-        buildBinaryExpressionRecursively expression, rights
+    _tail = @_.map tail, (term) =>
+      operator: @_.first term
+      value: @_.last term
 
     if @_.isEmpty tail
       factor
     else
-      buildBinaryExpressionRecursively factor, tail.reverse()
+      @$.buildBinaryExpressionRecursively
+        left: factor,
+        rights: _tail.reverse()
   }
 factor
   = primary:primary __ tail:(__ "^" __ primary)* {

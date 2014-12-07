@@ -96,6 +96,21 @@ class Helper
     left: args.left
     right: args.right
 
+  buildBinaryExpressionRecursively: (args) =>
+    term = args.rights.pop()
+    left = args.left
+    right = term.value
+    operator = term.operator
+
+    expression = @binaryExpression {left, right, operator}
+
+    if args.rights.length <= 0
+      expression
+    else
+      @buildBinaryExpressionRecursively
+        left: expression
+        rights: args.rights
+
   literal: (value) ->
     type: 'Literal'
     value: value

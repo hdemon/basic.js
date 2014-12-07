@@ -1,5 +1,5 @@
 10 PRINT "ABC"
 20 PRINT "DEF"
-30 LET A = 1 + 2 + 3 ^ 4 ^ 5
+30 LET A = 1 + 2 * 3 / 4 ^ 2 ^ 2
 
 999 END

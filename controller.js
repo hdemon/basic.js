@@ -1,4 +1,4 @@
-controller = {};
+var controller = {};
 
 controller.__next = function() {
   var lineIndexes = Object.keys(program);

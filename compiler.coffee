@@ -9,6 +9,7 @@ fs = require 'fs'
 argv = require('optimist').argv
 
 peg = fs.readFileSync('ecma55.pegjs').toString()
+initializerCode = fs.readFileSync('initializer.js').toString()
 controllerCode = fs.readFileSync('controller.js').toString()
 sourceCode = fs.readFileSync(argv._[0]).toString()
 
@@ -19,4 +20,4 @@ parseToAst = (parserCode, code) ->
 
 ast = parseToAst peg, sourceCode
 # console.log pj.render ast
-console.log controllerCode + escodegen.generate(ast)
+console.log initializerCode + escodegen.generate(ast) + controllerCode

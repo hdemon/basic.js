@@ -3,4 +3,5 @@
 30 LET A = 1 + 2 * 3 / 4 ^ 2 ^ 2
 40 LET B = A
 50 LET C$ = "FUGA"
+60 IF A <> 1 THEN 10
 999 END

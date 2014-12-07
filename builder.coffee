@@ -39,6 +39,14 @@ class Builder
     type: 'ExpressionStatement'
     expression: expressionObject
 
+  ifStatement: (args) ->
+    type: 'IfStatement'
+    test: args.testExpression
+    consequent:
+      type: 'ExpressionStatement'
+      expression: @callGotoExpression args.lineNumber
+    alternate: null
+
   variableDeclaration: (declarationObjects) ->
     type: 'VariableDeclaration'
     declarations: declarationObjects
@@ -96,6 +104,16 @@ class Builder
     left: args.left
     right: args.right
 
+  variableExpression: (variableName) ->
+    type: 'MemberExpression'
+    computed: false
+    object:
+      type: 'Identifier'
+      name: 'global'
+    property:
+      type: 'Identifier'
+      name: variableName
+
   buildBinaryExpressionRecursively: (args) =>
     term = args.rights.pop()
     left = args.left
@@ -115,18 +133,20 @@ class Builder
     type: 'Literal'
     value: value
 
-  assignToVariable: (args) ->
+  assignToVariable: (args) =>
     @expressionStatement
       type: 'AssignmentExpression'
       operator: '='
-      left:
-        type: 'MemberExpression'
-        computed: false
-        object:
-            type: 'Identifier'
-            name: 'global'
-        property: args.variableIdentifier
+      left: args.variableExpression
       right: args.expression
+
+  callGotoExpression: (lineNumber) =>
+    @controllerMethodCall
+      methodName: '__goto'
+      arguments: [
+        type: 'ThisExpression'
+        @literal lineNumber
+      ]
 
   removeWhiteSpace: (array) ->
     _.reject array, (element) -> element == [' ']

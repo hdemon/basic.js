@@ -95,7 +95,7 @@ unquoted_string
 block
   = line:line / for_block
 line_number
-  = $(digit+)
+  = number:$(digit+) { Number number }
 line
   = line_number:line_number _ statement:statement __ {
     lineNumber: line_number
@@ -124,15 +124,12 @@ variable
   = numeric_variable / string_variable
 numeric_variable
   // = variableName:simple_numeric_variable / numeric_array_element {
-  = variableName:simple_numeric_variable {
-    type: "Identifier"
-    name: variableName
-  }
+  = simple_numeric_variable
 simple_numeric_variable
   = letter:letter digits:digit? {
     name = letter
     name += digits.join('') if digits
-    name
+    @$.variableExpression name
   }
 numeric_array_element
   = numeric_array_name subscript
@@ -142,8 +139,7 @@ subscript
   = "(" numeric_expression ("." numeric_expression)? ")"
 string_variable
   = letter:letter "$" {
-    type: "Identifier"
-    name: letter + "$"
+    @$.variableExpression(letter + "$")
   }
 
 // constants
@@ -254,20 +250,27 @@ goto_statement
       ]
   }
 if_then_statement
-  = "IF" _ relational_expression _ "THEN" _ line_number
+  = "IF" _ testExpression:relational_expression _ "THEN" _ lineNumber:line_number {
+    # test expression is identifier or binary expression
+    @$.ifStatement {testExpression, lineNumber}
+  }
 relational_expression
-  = numeric_expression _ relation _ numeric_expression
-  / string_expression _ equality_relation _ string_expression
+      //string_expression _ relation:equality_relation _ string_expression {
+  = left:numeric_expression _ operator:relation _ right:numeric_expression {
+      @$.binaryExpression {left, right, operator}
+    }
 relation
   = equality_relation / "<" / ">" / not_less / not_greater
 equality_relation
-  = "=" / not_equals
+  = equals / not_equals
+equals
+  = "=" { "==" }
 not_less
   = ">="
 not_greater
   = "<="
 not_equals
-  = "<>"
+  = "<>" { "!==" }
 gosub_statement
   = "GO" white_space* "SUB" line_number
 return_statement
@@ -321,10 +324,10 @@ print_separator
 let_statement
   = numeric_let_statement / string_let_statement
 numeric_let_statement
-  = "LET" _ variableIdentifier:numeric_variable _ "=" _ expression:numeric_expression __ {
-    @$.assignToVariable {variableIdentifier, expression}
+  = "LET" _ variableExpression:numeric_variable _ "=" _ expression:numeric_expression __ {
+    @$.assignToVariable {variableExpression, expression}
   }
 string_let_statement
-  = "LET" _ variableIdentifier:string_variable _ "=" _ expression:string_expression __ {
-    @$.assignToVariable {variableIdentifier, expression}
+  = "LET" _ variableExpression:string_variable _ "=" _ expression:string_expression __ {
+    @$.assignToVariable {variableExpression, expression}
   }

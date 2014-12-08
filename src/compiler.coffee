@@ -8,9 +8,9 @@ coffee = require 'pegjs-coffee-plugin'
 fs = require 'fs'
 argv = require('optimist').argv
 
-peg = fs.readFileSync('ecma55.pegjs').toString()
-initializerCode = fs.readFileSync('initializer.js').toString()
-controllerCode = fs.readFileSync('controller.js').toString()
+peg = fs.readFileSync('src/ecma55.pegjs').toString()
+initializerCode = fs.readFileSync('src/initializer.js').toString()
+controllerCode = fs.readFileSync('src/controller.js').toString()
 sourceCode = fs.readFileSync(argv._[0]).toString()
 
 generateParser = (src) -> PEG.buildParser src, { plugins: [coffee] }

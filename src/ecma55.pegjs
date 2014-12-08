@@ -1,5 +1,5 @@
 {
-  Builder = require '../../../builder'
+  Builder = require process.cwd() + '/src/builder'
   @_ = require 'lodash'
   @$ = new Builder
 }

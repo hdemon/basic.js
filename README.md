@@ -7,4 +7,7 @@ see [the specification document](http://sourceforge.net/p/buraphakit/MinimalBASI
 
 ### Usage
 
-```bin/ecma55 ./examples/if_and_let.ecma55 > if_and_let.js```
+```
+bin/ecma55 ./examples/if_and_let.ecma55 > if_and_let.js
+node if_and_let.js
+```

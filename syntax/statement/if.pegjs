@@ -12,14 +12,18 @@ relational_expression
     }
 
 relation
-  = equality_relation / "<" / ">" / not_less / not_greater
+  = equality_relation / less_than_sign / greater_than_sign / not_less / not_greater
 equality_relation
   = equals / not_equals
 equals
-  = "=" { return "==" }
+  = "=" { return Symbol('euqals') }
+greater_than_sign
+  = ">" { return Symbol('greater_than_sign') }
+less_than_sign
+  = "<" { return Symbol('less_than_sign') }
 not_less
-  = ">="
+  = ">=" { return Symbol('not_less') }
 not_greater
-  = "<="
+  = "<=" { return Symbol('not_greater') }
 not_equals
-  = "<>" { return "!==" }
+  = "<>" { return Symbol('not_euqals') }

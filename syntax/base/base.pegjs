@@ -73,7 +73,8 @@ program = blocks:block* endLine:end_line {
       ])
     });
   };
-  programObject(properties.concat(endProperties()));
+
+  return programObject(properties.concat(endProperties()));
 }
 
 block

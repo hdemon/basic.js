@@ -47,23 +47,3 @@ goto_statement
   = "GO" _ "TO" _ lineNumber:line_number {
     return $.expressionStatement($.callGotoExpression(lineNumber))
   }
-
-relational_expression
-  = left:numeric_expression _ operator:relation _ right:numeric_expression {
-      return $.binaryExpression({ left, right, operator })
-    } /
-    left:string_expression _ operator:equality_relation _ right:string_expression {
-      return $.binaryExpression({ left, right, operator })
-    }
-relation
-  = equality_relation / "<" / ">" / not_less / not_greater
-equality_relation
-  = equals / not_equals
-equals
-  = "=" { "==" }
-not_less
-  = ">="
-not_greater
-  = "<="
-not_equals
-  = "<>" { "!==" }

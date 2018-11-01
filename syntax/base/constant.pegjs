@@ -1,0 +1,28 @@
+// constants
+numeric_constant
+  = sign? numeric_rep
+sign
+  = "+" / "-"
+numeric_rep
+  = significand:significand exrad:exrad? {
+    raw = significand.join('')
+    if exrad then raw += exrad.join('')
+
+    type: "Literal"
+    value: Number raw
+    raw: raw
+  }
+significand
+  = integer? fraction / integer "."?
+integer
+  = digits:(digit digit*) {
+    (@_.flatten digits).join('')
+  }
+fraction
+  = "." digits:(digit digit*) {
+    "." + (@_.flatten digits).join('')
+  }
+exrad
+  = "E" sign? integer
+string_constant
+  = quoted_string

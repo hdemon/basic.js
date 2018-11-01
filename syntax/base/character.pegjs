@@ -30,7 +30,7 @@ plain_string_character
 remark_string
   = string_character*
 quoted_string
-  = "\"" value:$(quoted_string_character*) "\"" { @$.literal(value) }
+  = "\"" value:$(quoted_string_character*) "\"" { return $.literal(value) }
 unquoted_string
   = plain_string_character /
     plain_string_character

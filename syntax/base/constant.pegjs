@@ -5,22 +5,24 @@ sign
   = "+" / "-"
 numeric_rep
   = significand:significand exrad:exrad? {
-    raw = significand.join('')
-    if exrad then raw += exrad.join('')
+    let raw = significand.join('')
+    if (exrad) { raw += exrad.join('') }
 
-    type: "Literal"
-    value: Number raw
-    raw: raw
+    return {
+      type: "Literal",
+      value: Number(raw),
+      raw,
+    }
   }
 significand
   = integer? fraction / integer "."?
 integer
   = digits:(digit digit*) {
-    (@_.flatten digits).join('')
+    return (_.flatten(digits)).join('')
   }
 fraction
   = "." digits:(digit digit*) {
-    "." + (@_.flatten digits).join('')
+    return "." + (_.flatten(digits)).join('')
   }
 exrad
   = "E" sign? integer

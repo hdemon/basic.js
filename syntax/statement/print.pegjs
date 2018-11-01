@@ -1,9 +1,10 @@
 print_statement
   = "PRINT" _ item:print_item {
-    @$.expressionStatement @$.callExpression
-      object: "console"
-      property: "log"
-      args: [item]
+    return $.expressionStatement($.callExpression({
+      object: "console",
+      property: "log",
+      args: [item],
+    }))
   }
 
 print_list

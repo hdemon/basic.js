@@ -3,53 +3,67 @@ expression
   = string_expression / numeric_expression
 numeric_expression
   = sign:sign? leftTerm:term _ rightTerms:(sign _ term)* {
-    _rightTerms = @_.map rightTerms, (term) =>
-      operator: @_.first term
-      value: @_.last term
+    const _rightTerms = _.map(rightTerms, (term) => {
+      return {
+        operator: _.first(term),
+        value: _.last(term)
+      }
+    })
 
-    if @_.isEmpty rightTerms
-      leftTerm
-    else
-      @$.buildBinaryExpressionRecursively
+    if (_.isEmpty(rightTerms)) {
+      return leftTerm
+    } else {
+      return $.buildBinaryExpressionRecursively({
         left: leftTerm,
         rights: _rightTerms.reverse()
+      })
+    }
   }
 term
   = factor:factor _ tail:(multiplier _ factor)* {
-    _tail = @_.map tail, (term) =>
-      operator: @_.first term
-      value: @_.last term
+    const _tail = _.map(tail, (term) => {
+      return {
+        operator: _.first(term),
+        value: _.last(term)
+      }
+    })
 
-    if @_.isEmpty tail
-      factor
-    else
-      @$.buildBinaryExpressionRecursively
+    if (_.isEmpty(tail)){
+      return factor
+    } else {
+      return $.buildBinaryExpressionRecursively({
         left: factor,
         rights: _tail.reverse()
+      })
+    }
   }
 factor
   = primary:primary _ tail:(_ "^" _ primary)* {
-    buildCallExpressionRecursively = (firstExpression, _tail) =>
-      term = _tail.pop()
-      value = @_.last term
+    const buildCallExpressionRecursively = (firstExpression, _tail) => {
+      const term = _tail.pop()
+      const value = _.last(term)
 
-      expression = @$.callExpression
-        object: 'Math'
-        property: 'pow'
+      const expression = $.callExpression({
+        object: 'Math',
+        property: 'pow',
         args: [
-          firstExpression
-          value
-        ]
+          firstExpression,
+          value,
+        ],
+      })
 
-      if tail.length <= 0
-        expression
-      else
-        buildCallExpressionRecursively expression, _tail
+      if (tail.length <= 0) {
+        return expression
+      } else {
+        return buildCallExpressionRecursively(expression, _tail)
+      }
+    }
 
-    if @_.isEmpty tail
-      primary
-    else
-      buildCallExpressionRecursively primary, tail.reverse()
+    if (_.isEmpty(tail)) {
+      return primary
+    } else {
+      return buildCallExpressionRecursively(primary, tail.reverse())
+    }
   }
 multiplier
   = "*" / "/"

@@ -1,6 +1,6 @@
 start = program
 program = blocks:block* endLine:end_line {
-  programObject = (properties) => {
+  const programObject = (properties) => {
     return {
       type: 'Program',
       body: [
@@ -20,14 +20,14 @@ program = blocks:block* endLine:end_line {
     };
   };
 
-  lineNumberProperty = (lineNumber) => {
+  const lineNumberProperty = (lineNumber) => {
     return $.property({
       keyName: 'lineNumber',
       valueObject: $.literal(lineNumber)
     });
   };
 
-  nextMethod = () => {
+  const nextMethod = () => {
     return $.controllerMethodCall({
       methodName: '__next',
       arguments: [
@@ -38,7 +38,7 @@ program = blocks:block* endLine:end_line {
     });
   };
 
-  properties = _.map(blocks, (block) => {
+  const properties = _.map(blocks, (block) => {
     return $.property({
       keyName: "\"" + String(block.lineNumber) + "\"",
       valueObject: $.objectExpression([
@@ -56,7 +56,7 @@ program = blocks:block* endLine:end_line {
     });
   });
 
-  endProperties = () => {
+  const endProperties = () => {
     return $.property({
       keyName: "\"" + String(endLine.lineNumber) + "\"",
       valueObject: $.objectExpression([

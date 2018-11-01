@@ -5,4 +5,4 @@ const fs   = require('fs');
 const lib  = path.join(path.dirname(fs.realpathSync(__filename)), '../lib');
 const argv = require('optimist').argv;
 
-require(lib + '/compiler').run(argv._[0]);
+require(lib + '/compiler').run(argv);

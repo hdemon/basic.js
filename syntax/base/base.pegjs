@@ -1,80 +1,6 @@
 start = program
 program = blocks:block* endLine:end_line {
-  const programObject = (properties) => {
-    return {
-      type: 'Program',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            operator: '=',
-            left: {
-              type: 'Identifier',
-              name: 'program'
-            },
-            right: $.objectExpression(properties)
-          }
-        }
-      ]
-    };
-  };
-
-  const lineNumberProperty = (lineNumber) => {
-    return $.property({
-      keyName: 'lineNumber',
-      valueObject: $.literal(lineNumber)
-    });
-  };
-
-  const nextMethod = () => {
-    return $.controllerMethodCall({
-      methodName: '__next',
-      arguments: [
-        {
-          type: 'ThisExpression'
-        }
-      ]
-    });
-  };
-
-  const properties = _.map(blocks, (block) => {
-    return $.property({
-      keyName: "\"" + String(block.lineNumber) + "\"",
-      valueObject: $.objectExpression([
-        $.property({
-          keyName: 'func',
-          valueObject: $.functionExpression({
-            name: null,
-            blockStatement: $.blockStatement({
-              bodyArray: [block.statement, $.expressionStatement(nextMethod())]
-            })
-          })
-        }),
-        lineNumberProperty(block.lineNumber)
-      ])
-    });
-  });
-
-  const endProperties = () => {
-    return $.property({
-      keyName: "\"" + String(endLine.lineNumber) + "\"",
-      valueObject: $.objectExpression([
-        $.property({
-          keyName: 'func',
-          valueObject: $.functionExpression({
-            name: null,
-            blockStatement: $.blockStatement({
-              bodyArray: []
-            })
-          })
-        }),
-        lineNumberProperty(endLine.lineNumber)
-      ])
-    });
-  };
-
-  return programObject(properties.concat(endProperties()));
+  return transpile(blocks, endLine)
 }
 
 block
@@ -121,11 +47,7 @@ goto_statement
   = "GO" _ "TO" _ lineNumber:line_number {
     return $.expressionStatement($.callGotoExpression(lineNumber))
   }
-if_then_statement
-  = "IF" _ testExpression:relational_expression _ "THEN" _ lineNumber:line_number {
-    // test expression is identifier or binary expression
-    return $.ifStatement({ testExpression, lineNumber })
-  }
+
 relational_expression
   = left:numeric_expression _ operator:relation _ right:numeric_expression {
       return $.binaryExpression({ left, right, operator })

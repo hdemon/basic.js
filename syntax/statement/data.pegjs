@@ -1,14 +1,26 @@
 data_statement
-  = numeric_data_statement / string_data_statement
+  = "DATA" _ list:data_list {
+    return $.pushData({list})
+  }
 
-numeric_data_statement
-  = "DATA" _ numeric:numeric_constant __ {
-    return $.pushNumericData({numeric})
+data_list
+  = list:(data_separator? _ data_item _ )+ {
+    return list.map(match=>match[2])
   }
-string_data_statement
-  = "DATA" _ string:string_constant __ {
-    return $.pushStringData({string})
+
+data_item
+  = numeric_data_item / string_data_item
+
+string_data_item
+  = string_constant
+
+numeric_data_item
+  = match:numeric_constant {
+    return match[1]
   }
+
+data_separator
+  = "," / ";"
 
 read_statement
   = numeric_read_statement / string_read_statement

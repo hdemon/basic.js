@@ -11,7 +11,7 @@ next_line
   = line_number _ next_statement __
 
 for_statement
-  = FOR control_variable equals_sign initial_value TO limit (STEP increment)?
+  = FOR control_variable _ equals_sign _ initial_value _ TO _limit (_ STEP increment)?
 
 control_variable
   = simple_numeric_variable
@@ -26,7 +26,7 @@ increment
   = numeric_expression
 
 next_statement
-  = NEXT control_variable
+  = NEXT _ control_variable
 
 FOR
   = "FOR"

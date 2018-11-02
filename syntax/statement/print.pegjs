@@ -1,14 +1,16 @@
 print_statement
-  = "PRINT" _ item:print_item {
+  = "PRINT" _ list:print_list {
     return $.expressionStatement($.callExpression({
       object: "console",
       property: "log",
-      args: [item],
+      args: [...list],
     }))
   }
 
 print_list
-  = (print_item? print_separator _)* print_item?
+  = list:(print_separator? _ print_item _ )+ {
+    return list.map(match=>match[2])
+  }
 
 print_item
   = expression / tab_call
@@ -17,4 +19,4 @@ tab_call
   = "TAB" "(" numeric_expression ")"
 
 print_separator
-  = "." / ";"
+  = "," / ";"

@@ -18,7 +18,7 @@ numeric_rep
   }
 
 significand
-  = integer? fraction / integer "."?
+  = integer? fraction / integer full_stop?
 
 integer
   = digits:(digit digit*) {
@@ -26,7 +26,7 @@ integer
   }
 
 fraction
-  = "." digits:(digit digit*) {
+  = full_stop digits:(digit digit*) {
     return "." + (_.flatten(digits)).join('')
   }
 

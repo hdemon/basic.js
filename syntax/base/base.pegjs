@@ -18,7 +18,7 @@ line
   }
 
 end_statement
-  = "END" {
+  = END {
     return $.expressionStatement($.functionExpression({
       blockStatement: $.blockStatement({
         bodyArray: []
@@ -48,3 +48,6 @@ statement
 //    restore_statement / return_statement /
 //    stop_statement
 // expressions
+
+END
+  = "END"

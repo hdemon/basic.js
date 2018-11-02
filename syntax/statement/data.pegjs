@@ -1,5 +1,10 @@
 data_statement
-  = numeric_data_statement / string_data_statement
+  = numeric_data_statement / string_data_statement / restore_statement
+
+restore_statement
+  = "RESTORE" __ {
+    return $.resetDataIndex()
+  }
 
 numeric_data_statement
   = "DATA" _ numeric:numeric_constant __ {

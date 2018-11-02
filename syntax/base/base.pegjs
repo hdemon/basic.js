@@ -39,7 +39,8 @@ statement
   if_then_statement /
   let_statement /
   data_statement /
-  read_statement
+  read_statement /
+  restore_statement
 //    input_statement /
 //    on_goto_statement / option_statement /
 //    print_statement / randomize_statement /

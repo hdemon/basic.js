@@ -35,7 +35,10 @@ remark_string
   = string_character*
 
 quoted_string
-  = quotation_mark value:$(quoted_string_character*) quotation_mark { return  $.literal(value) }
+  = quotation_mark value:$(quoted_string_character*) quotation_mark {
+      return value;
+    //   return  $.literal(value)
+    }
 
 unquoted_string
   = plain_string_character /

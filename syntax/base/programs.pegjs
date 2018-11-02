@@ -1,7 +1,8 @@
 start = program
 
 program = blocks:block* endLine:end_line {
-  return transpile(blocks, endLine)
+  jsome(blocks)
+//   return transpile(blocks, endLine)
 }
 
 block
@@ -13,8 +14,8 @@ line_number
 line
   = line_number:line_number _ statement:statement __ {
     return {
-      lineNumber: line_number,
-      statement: statement,
+      line_number,
+      statement
     }
   }
 

@@ -1,6 +1,12 @@
 // constants
 numeric_constant
-  = sign? numeric_rep
+  = sign:sign? numeric_rep:numeric_rep {
+    if (sign) {
+      return `${sign}${numeric_rep}`
+    } else {
+      return `${numeric_rep}`
+    }
+  }
 
 sign
   = plus_sign / minus_sign
@@ -10,11 +16,12 @@ numeric_rep
     let raw = significand.join('')
     if (exrad) { raw += exrad.join('') }
 
-    return {
-      type: "Literal",
-      value: Number(raw),
-      raw,
-    }
+    return raw
+    // return {
+    //   type: "Literal",
+    //   value: Number(raw),
+    //   raw,
+    // }
   }
 
 significand

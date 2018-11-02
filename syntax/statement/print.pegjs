@@ -19,4 +19,4 @@ tab_call
   = "TAB" "(" numeric_expression ")"
 
 print_separator
-  = ","
+  = "," / ";"

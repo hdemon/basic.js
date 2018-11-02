@@ -1,8 +1,10 @@
 // constants
 numeric_constant
   = sign? numeric_rep
+
 sign
-  = "+" / "-"
+  = plus_sign / minus_sign
+
 numeric_rep
   = significand:significand exrad:exrad? {
     let raw = significand.join('')
@@ -14,17 +16,25 @@ numeric_rep
       raw,
     }
   }
+
 significand
   = integer? fraction / integer "."?
+
 integer
   = digits:(digit digit*) {
     return (_.flatten(digits)).join('')
   }
+
 fraction
   = "." digits:(digit digit*) {
     return "." + (_.flatten(digits)).join('')
   }
+
 exrad
-  = "E" sign? integer
+  = E sign? integer
+
 string_constant
   = quoted_string
+
+E =
+  "E"

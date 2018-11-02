@@ -1,6 +1,6 @@
-
 expression
   = string_expression / numeric_expression
+
 numeric_expression
   = sign:sign? leftTerm:term _ rightTerms:(sign _ term)* {
     const _rightTerms = _.map(rightTerms, (term) => {
@@ -19,6 +19,7 @@ numeric_expression
       })
     }
   }
+
 term
   = factor:factor _ tail:(multiplier _ factor)* {
     const _tail = _.map(tail, (term) => {
@@ -37,8 +38,9 @@ term
       })
     }
   }
+
 factor
-  = primary:primary _ tail:(_ "^" _ primary)* {
+  = primary:primary _ tail:(_ circumflex_accent _ primary)* {
     const buildCallExpressionRecursively = (firstExpression, _tail) => {
       const term = _tail.pop()
       const value = _.last(term)
@@ -65,16 +67,21 @@ factor
       return buildCallExpressionRecursively(primary, tail.reverse())
     }
   }
+
 multiplier
-  = "*" / "/"
+  = asterisk / solidus
 // primary = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
+
 primary
-  = variable:numeric_variable / rep:numeric_rep / "(" expression:numeric_expression ")"
+  = variable:numeric_variable / rep:numeric_rep / left_parenthesis expression:numeric_expression right_parenthesis
 // numeric_function_ref = numeric_function_name argument_list?
 // numeric_function_name = numeric_defined_function / numeric_supplied_function
+
 argument_list
-  = "(" argument ")"
+  = left_parenthesis argument right_parenthesis
+
 argument
   = string_expression
+
 string_expression
   = string_variable / string_constant

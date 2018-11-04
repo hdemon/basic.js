@@ -70,12 +70,16 @@ factor
 
 multiplier
   = asterisk / solidus
-// primary = numeric_variable / numeric_rep / numeric_function_ref / "(" numeric_expression ")"
 
 primary
-  = variable:numeric_variable / rep:numeric_rep / left_parenthesis expression:numeric_expression right_parenthesis
-// numeric_function_ref = numeric_function_name argument_list?
-// numeric_function_name = numeric_defined_function / numeric_supplied_function
+  = variable:numeric_variable / rep:numeric_rep / numeric_function_ref /
+    left_parenthesis expression:numeric_expression right_parenthesis
+
+numeric_function_ref
+  = numeric_function_name argument_list?
+
+numeric_function_name
+  = numeric_defined_function / numeric_supplied_function
 
 argument_list
   = left_parenthesis argument right_parenthesis

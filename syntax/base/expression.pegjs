@@ -45,7 +45,7 @@ factor
       const term = _tail.pop()
       const value = _.last(term)
 
-      const expression = $.callExpression({
+      const expression = callExpression({
         object: 'Math',
         property: 'pow',
         args: [

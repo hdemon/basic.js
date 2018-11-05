@@ -1,6 +1,6 @@
 print_statement
   = PRINT _ list:print_list {
-    return { statement: 'PRINT', list }
+    return { statement: 'PRINT', arguments: { list } }
   }
 
 print_list

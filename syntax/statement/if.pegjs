@@ -1,15 +1,15 @@
 if_then_statement
-  = IF _ testExpression:relational_expression _ THEN _ lineNumber:line_number {
-    return $.ifStatement({ testExpression, lineNumber })
+  = IF _ _args:relational_expression _ THEN _ line_number:line_number {
+    return { statement: 'IF', arguments: { ..._args, goto: line_number } }
   }
 
 relational_expression
   = left:numeric_expression _ operator:relation _ right:numeric_expression {
-      return $.binaryExpression({ left, right, operator })
-    } /
-    left:string_expression _ operator:equality_relation _ right:string_expression {
-      return $.binaryExpression({ left, right, operator })
-    }
+    return { left, right, operator }
+  } /
+  left:string_expression _ operator:equality_relation _ right:string_expression {
+    return { left, right, operator }
+  }
 
 relation
   = equality_relation / less_than_sign / greater_than_sign / not_less / not_greater

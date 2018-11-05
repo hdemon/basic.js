@@ -1,16 +1,31 @@
 // variables
 variable
-  = name:numeric_variable / name:string_variable
+  = name:numeric_variable {
+    return name
+  } / name:string_variable {
+    return name
+  }
 
 numeric_variable
-  // = variableName:simple_numeric_variable / numeric_array_element {
-  = simple_numeric_variable
+  = simple_numeric_variable /
+    numeric_array_element
 
 // ex. A1, B20
 simple_numeric_variable
   = letter:letter digits:digit? {
-    let name = letter + (digits && digits.join(''))
-    return $.variableExpression(name)
+    const variableName = letter + (digits ? digits.join(''): '')
+    return {
+      type: 'MemberExpression',
+      computed: false,
+      object: {
+        type: 'Identifier',
+        name: 'global'
+      },
+      property: {
+        type: 'Identifier',
+        name: variableName
+      }
+    };
   }
 
 // ex. V(3)
@@ -25,6 +40,5 @@ subscript
 
 string_variable
   = letter:letter dollar_sign {
-    // return letter + "$"
-    return $.variableExpression(letter + "$")
+    return letter + "$"
   }

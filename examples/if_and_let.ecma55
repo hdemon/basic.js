@@ -1,5 +1,5 @@
 10 LET A = 1
-20 LET A = A + 1
+20 LET A = A + 1 * (2 + 3 + COS(1))
 30 PRINT A
 40 IF A <> 10 THEN 20
 999 END

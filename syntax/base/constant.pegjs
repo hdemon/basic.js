@@ -1,6 +1,12 @@
 // constants
 numeric_constant
-  = sign? numeric_rep
+  = sign:sign? numeric_rep:numeric_rep {
+    if (sign) {
+      return `${sign}${numeric_rep}`
+    } else {
+      return `${numeric_rep}`
+    }
+  }
 
 sign
   = plus_sign / minus_sign

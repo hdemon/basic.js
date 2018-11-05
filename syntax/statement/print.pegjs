@@ -1,15 +1,11 @@
 print_statement
   = PRINT _ list:print_list {
-    return $.expressionStatement($.callExpression({
-      object: "console",
-      property: "log",
-      args: [...list],
-    }))
+    return { statement: 'PRINT', list }
   }
 
 print_list
   = list:(print_separator? _ print_item _ )+ {
-    return list.map(match=>match[2])
+    return list.map(match => match[2])
   }
 
 print_item

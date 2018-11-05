@@ -13,7 +13,7 @@ numeric_expression
     if (_.isEmpty(rightTerms)) {
       return leftTerm
     } else {
-      return $.buildBinaryExpressionRecursively({
+      return buildBinaryExpressionRecursively({
         left: leftTerm,
         rights: _rightTerms.reverse()
       })
@@ -32,7 +32,7 @@ term
     if (_.isEmpty(tail)){
       return factor
     } else {
-      return $.buildBinaryExpressionRecursively({
+      return buildBinaryExpressionRecursively({
         left: factor,
         rights: _tail.reverse()
       })
@@ -72,20 +72,25 @@ multiplier
   = asterisk / solidus
 
 primary
-  = variable:numeric_variable / rep:numeric_rep / numeric_function_ref /
-    left_parenthesis expression:numeric_expression right_parenthesis
+  // The original order is numeric-variable, rep, function_ref. But under PEG we should prior numeric_function_ref
+  // because the parser will 
+  = numeric_function_ref /
+    numeric_variable /
+    numeric_rep /
+    left_parenthesis expression:numeric_expression right_parenthesis { return expression }
 
 numeric_function_ref
-  = numeric_function_name argument_list?
+  = name:numeric_function_name _args:argument_list?
 
 numeric_function_name
-  = numeric_defined_function / numeric_supplied_function
+  = numeric_defined_function /
+    numeric_supplied_function
 
 argument_list
-  = left_parenthesis argument right_parenthesis
+  = left_parenthesis argument:argument right_parenthesis { return argument }
 
 argument
-  = string_expression
+  = numeric_expression
 
 string_expression
   = string_variable / string_constant

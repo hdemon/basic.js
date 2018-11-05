@@ -1,7 +1,7 @@
 start = program
 
 program = blocks:block* endLine:end_line {
-  return transpile(blocks, endLine)
+  return blocks
 }
 
 block
@@ -12,24 +12,15 @@ line_number
 
 line
   = line_number:line_number _ statement:statement __ {
-    return {
-      lineNumber: line_number,
-      statement: statement,
-    }
+    return { line_number, ...statement }
   }
 
 end_statement
-  = END {
-    return $.expressionStatement($.functionExpression({
-      blockStatement: $.blockStatement({
-        bodyArray: []
-      })
-    }))
-  }
+  = END
 
 end_line
   = lineNumber:line_number _ statement:end_statement __ {
-    return { lineNumber, statement }
+    return { lineNumber, ...statement }
   }
 
 statement

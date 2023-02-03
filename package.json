@@ -23,7 +23,7 @@
     "jsome": "^2.5.0",
     "json-beautify": "^1.0.1",
     "json-colorz": "^0.2.7",
-    "lodash": "^4.17.12",
+    "lodash": "^4.17.21",
     "optimist": "^0.6.1",
     "pegjs": "^0.10.0",
     "pegjs-dev": "^0.11.0-dev",
